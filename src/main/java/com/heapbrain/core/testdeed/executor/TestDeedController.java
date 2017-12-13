@@ -24,8 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.heapbrain.core.testdeed.common.Constant;
 import com.heapbrain.core.testdeed.engine.ReportGenerateEngine;
 import com.heapbrain.core.testdeed.engine.ServiceGenerateEngine;
+import com.heapbrain.core.testdeed.exception.ValidationException;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.GatlingConfiguration;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
@@ -172,7 +174,7 @@ public class TestDeedController {
 							+"."+f.getName());
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new ValidationException(Constant.CONFIGURATION_ERROR +" User defined simulation class does not exist ");
 			}
 		});
 		return returnValue.toString().replace("package ","").replace(".scala", "");

@@ -5,18 +5,18 @@ package com.heapbrain.core.testdeed.to;
  */
 
 public class GatlingConfiguration {
-	Double constantUsersPerSec;
-	String duration;
-	String maxDuration;
-	int atOnceUsers;
-	int rampUser;
-	String rampUserOver;
-	Double rampUsersPerSec;
-	Double rampUsersPerSecTo;
-	String rampUsersPerSecDuring;
-	String nothingFor;
-	int status;
-	String maxResponseTime;
+	Double constantUsersPerSec=new Double(0);
+	String duration="";
+	String maxDuration="";
+	int atOnceUsers=0;
+	int rampUser=0;
+	String rampUserOver="";
+	Double rampUsersPerSec=new Double(0);
+	Double rampUsersPerSecTo=new Double(0);
+	String rampUsersPerSecDuring="";
+	String nothingFor="";
+	int status=0;
+	String maxResponseTime="";
 	
 	public Double getConstantUsersPerSec() {
 		return constantUsersPerSec;

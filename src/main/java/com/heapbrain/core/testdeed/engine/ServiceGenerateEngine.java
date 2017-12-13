@@ -47,8 +47,8 @@ public class ServiceGenerateEngine {
 			
 			return htmlString;
 		} else {
-			return IOUtils.toString(testDeedUtility.getHtmlFile("permissiondenied.html"), 
-					Charset.forName("UTF-8"));
+			return IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
+					Charset.forName("UTF-8")).replace("~testdeedexception~", "Performance test - Permission denied in production");
 		}
 	}
 

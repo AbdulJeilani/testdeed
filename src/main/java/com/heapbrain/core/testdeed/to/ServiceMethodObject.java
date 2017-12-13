@@ -5,12 +5,12 @@ package com.heapbrain.core.testdeed.to;
  */
 
 public class ServiceMethodObject {
-	String method;
-	String executeService;
-	String testDeedName;
-	String baseURL;
-	String acceptHeader;
-	String requestBody;
+	String method="";
+	String executeService="";
+	String testDeedName="";
+	String baseURL="";
+	String acceptHeader="";
+	String requestBody="";
 	
 	public String getMethod() {
 		return method;

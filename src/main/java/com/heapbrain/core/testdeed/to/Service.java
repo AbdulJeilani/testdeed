@@ -1,5 +1,7 @@
 package com.heapbrain.core.testdeed.to;
 
+import java.util.ArrayList;
+
 /**
  * @author AbdulJeilani
  */
@@ -9,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Service {
-	String serviceName;
-	String requestMapping;
-	String requestMethod;
-	String description;
-	List<String> consume;
-	List<String> produce;
+	String serviceName="";
+	String requestMapping="";
+	String requestMethod="";
+	String description="";
+	List<String> consume=new ArrayList<>();
+	List<String> produce=new ArrayList<>();
 	Map<String, Object> parameters = new HashMap<>();
 	
 	public String getServiceName() {

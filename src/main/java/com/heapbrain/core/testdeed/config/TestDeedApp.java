@@ -15,7 +15,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.heapbrain.core.testdeed.common.Constant;
-import com.heapbrain.core.testdeed.exception.ValidationException;
 import com.heapbrain.core.testdeed.executor.TestDeedController;
 
 @Configuration
@@ -42,7 +41,7 @@ public class TestDeedApp {
 			}
 			in.close();
 		}  catch (IOException | NullPointerException e) {
-			throw new ValidationException(Constant.CONFIGURATION_ERROR +" testdeed.properties - file missing ");
+			System.out.println(Constant.CONFIGURATION_ERROR +" testdeed.properties configuration file missing.");
 		}
 		TestDeedController.serverHosts = listOfServers;	
 		TestDeedController.reportPath = System.getProperty("user.dir")+"/reports";

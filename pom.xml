@@ -5,7 +5,7 @@
 
 	<groupId>com.heapbrain</groupId>
 	<artifactId>testdeed</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>testdeed</name>
@@ -150,7 +150,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.5</version>
@@ -163,7 +163,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>-->
+			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -177,4 +177,8 @@
 			</plugin>
 		</plugins>
 	</build>
+	<organization>
+		<name>HeapBrain</name>
+		<url>http://www.heapbrain.com</url>
+	</organization>
 </project>

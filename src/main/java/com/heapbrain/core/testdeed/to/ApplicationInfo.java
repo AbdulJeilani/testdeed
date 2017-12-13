@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ApplicationInfo {
-	String serverLocalUrl;
-	String applicationName;
-	String description;
-	String mapping;
-	String testDeedApi;
-	boolean isSwagger;
-	boolean isProdEnabled;
+	String serverLocalUrl="";
+	String applicationName="{application.name.missing}";
+	String description="";
+	String mapping="";
+	String testDeedApi="";
+	boolean isSwagger=false;
+	boolean isProdEnabled=false;
 	Map<String, Service> services = new HashMap<>();
 	
 	public String getServerLocalUrl() {
