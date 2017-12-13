@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TestDeed Performance</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style type="text/css">
+html * {
+	font-size: 15px !important;
+	font-family: "Trebuchet MS", Helvetica, sans-serif !important;
+	font-style: normal !important;
+	-webkit-font-smoothing: antialiased !important;
+}
+
+body {
+	height: 100%;
+	padding: 10px;
+	margin: 10px;
+	overflow-x: hidden;
+}
+
+.text-container {
+	background: #39495c;
+	padding: 40px;
+	height: 200px;
+	width: 40%;
+	position: relative;
+}
+
+p {
+	color: #ffffff;
+}
+
+tab {
+	padding-left: 1em;
+}
+
+textarea {
+	background: transparent;
+	color: white;
+	resize: none;
+	border: 0 none;
+	outline: none;
+	position: absolute;
+	border-radius: 5px;
+	border: 1px solid #000;
+	font-size: 8px;
+}
+
+.cn {
+	display: table-cell;
+	width: 1600px;
+}
+
+.inner {
+	margin: 5px;
+	text-align: middle;
+	padding: 5px 5px;
+}
+</style>
+<script>
+	function showReport() {
+		var x = document.getElementById("report");
+		if (x.style.display === "none") {
+			x.style.display = "block";
+		} else {
+			x.style.display = "none";
+		}
+	}
+</script>
+</head>
+<body style="font-family: Arial">
+	<div
+		style="background-color: #39495c; overflow: auto; margin: 0 auto; height: 55px; border-radius: 5px;"
+		class="cn">
+		<p>
+			<tab>Performance test - Permission denied in production</tab>
+		</p>
+	</div>
+</body>
+</html>
