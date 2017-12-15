@@ -79,6 +79,10 @@
 			<artifactId>jackson-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.5</version>
@@ -107,6 +111,11 @@
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-compiler</artifactId>
 			<version>2.11.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.woodstox</groupId>
+			<artifactId>woodstox-core-asl</artifactId>
+			<version>4.1.4</version>
 		</dependency>
 	</dependencies>
 
@@ -181,4 +190,5 @@
 		<name>HeapBrain</name>
 		<url>http://www.heapbrain.com</url>
 	</organization>
+	<description>Easy configurable performance test with Gatling (Run anywhere)</description>
 </project>

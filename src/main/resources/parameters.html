@@ -1,3 +1,28 @@
+<form name="loadreportform~buttonmapid~" id="loadreportform~buttonmapid~" method="POST"
+		action="/loadrunner.html">
+
+		<input type="hidden" id="executeService" name="executeService" />
+		<input type="hidden" name="constantUsersPerSec" id="constantUsersPerSec" />
+		<input type="hidden" name="duration" id="duration" /> 
+		<input type="hidden" name="duration_select" id="duration_select" />
+		<input type="hidden" name="maxDuration" id="maxDuration" />
+		<input type="hidden" name="maxDuration_select" id="maxDuration_select" />
+		<input type="hidden" name="atOnceUsers" id="atOnceUsers" />
+		<input type="hidden" name="rampUser" id="rampUser" /> 
+		<input type="hidden" name="rampUserOver" id="rampUserOver" /> 
+		<input type="hidden" name="rampUserOver_select" id="rampUserOver_select" />
+		<input type="hidden" name="rampUsersPerSec" id="rampUsersPerSec" />
+		<input type="hidden" name="rampUsersPerSecTo" id="rampUsersPerSecTo" /> 
+		<input type="hidden" name="rampUsersPerSecDuring" id="rampUsersPerSecDuring" />
+		<input type="hidden" name="rampUsersPerSecDuring_select" id="rampUsersPerSecDuring_select" />
+		<input type="hidden" name="nothingFor" id="nothingFor" /> 
+		<input type="hidden" name="nothingFor_select" id="nothingFor_select"/>
+		<input type="hidden" name="status" id="status" />
+		<input type="hidden" name="maxResponseTime" id="maxResponseTime" />
+		<input type="hidden" name="simulationclass" id="simulationclass" value=""/>
+		<input type="hidden" name="baseURL" id="baseURL" />
+		<input type="hidden" name="serviceConsume" id="serviceConsume" />
+		
 <div
 	style="background-color: #39495c; overflow: auto; border-radius: 2px; display: none; width: 1400px;"
 	class="cn" id="~id~">
@@ -5,18 +30,39 @@
 		style="background-color: #cbd3de; overflow: auto; border-radius: 5px;"
 		class="inner">
 		<table width="70%" border="0px">
+			<tr>
+				<td colspan="3"><font color="#3c495a"><b>Parameters
+							Details</b></font></td>
+			</tr>
+			<tr>
+				<td colspan="4"><hr/></td>
+			</tr>
+			</tr>
+			<tr>
+				<td><font color="#3c495a"><b>Parameter</b></font></td>
+				<td><font color="#3c495a"><b>Value</b></font></td>
+				<td><font color="#3c495a"><b>Parameter Type</b></font></td>
+				<td><font color="#3c495a"><b>Data Type</b></font></td>
+			</tr>
+			<tr>
+				<td colspan="4"><hr/></td>
+			</tr>
 			~loadparameter~
 			<tr>
 				<td></td>
-				<td width="85%" height="20px"></td>
+				<td>&nbsp;</td>
+				<td></td>
+				<td></td>
 			</tr>
 			<tr>
 				<td></td>
-				<td width="85%" height="20px"><input type="button"
-					value="Execute!!!" id="~buttonmapid~"
+				<td><input type="button" value="Execute!!!" id="~buttonmapid~"
 					onclick="executeMethodFunction(this)" /></td>
+				<td></td>
+				<td></td>
 			</tr>
 		</table>
 	</div>
 </div>
+</form>
 <br />

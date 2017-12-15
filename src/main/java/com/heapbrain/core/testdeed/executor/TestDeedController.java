@@ -17,9 +17,11 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,19 +74,37 @@ public class TestDeedController {
 		}
 		applicationInfo.setServerLocalUrl(currentUrl);
 		
+		boolean isControllerPresent = false;
+		
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
 			Class<?> cl = Class.forName(bd.getBeanClassName());
-			testDeedUtility.loadClassConfig(cl, applicationInfo);
-			testDeedUtility.loadMethodConfig(cl, applicationInfo);
+			if(isController(cl)) {
+				testDeedUtility.loadClassConfig(cl, applicationInfo);
+				testDeedUtility.loadMethodConfig(cl, applicationInfo);
+				isControllerPresent = true;
+			}
 		}
-		return serviceGenerateEngine.generateHomePage(applicationInfo);
+		if(isControllerPresent) {
+			return serviceGenerateEngine.generateHomePage(applicationInfo);
+		} else {
+			return IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
+					Charset.forName("UTF-8")).replace("~testdeedexception~", "No controller found in application.");
+		}
 	}
 
+	private boolean isController(Class<?> classInput) {
+		if(null != classInput.getDeclaredAnnotation(Controller.class) || 
+				null != classInput.getDeclaredAnnotation(RestController.class)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
 	public String loadPerformanceResult(HttpServletRequest request) {
 		String html = "Report generation error :(";
 		try {
-			FileUtils.deleteDirectory(new File(reportPath));
 
 			String[] requestMethod = request.getParameter("executeService").split("~");
 			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
@@ -94,7 +114,7 @@ public class TestDeedController {
 				if(requestMethod[1].equalsIgnoreCase("GET")) {
 					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
 					serviceMethodObject.setExecuteService(frameURLGet(requestMethod[0], request));
-					serviceMethodObject.setAcceptHeader(request.getParameter(requestMethod[0]+"_Consume"));
+					serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 				} else if(requestMethod[1].equalsIgnoreCase("POST") || 
 						requestMethod[1].equalsIgnoreCase("PUT")) {
 					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
@@ -104,7 +124,6 @@ public class TestDeedController {
 			}
 			
 			loadGatlingUserConfiguration(request);
-
 			GatlingPropertiesBuilder props = new GatlingPropertiesBuilder();
 			
 			if(!request.getParameter("simulationclass").equals("")) {
@@ -114,17 +133,21 @@ public class TestDeedController {
 			}
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
-			Gatling.fromMap(props.build());
-
-			ReportGenerateEngine singleReport = new ReportGenerateEngine();
-			html = singleReport.generateReportFromGatling();
-			
-		} catch (IOException e) {
-			html = "Check your application configuration. Report generation error";
+			html = syncRunner(props);
+		} catch (Exception e) {
+			html = "Check your application configuration. Report generation error : "+e.getMessage();
 		}
 		return html;
 	}
 
+	private synchronized String syncRunner(GatlingPropertiesBuilder props) throws IOException {
+		Gatling.fromMap(props.build());
+		ReportGenerateEngine singleReport = new ReportGenerateEngine();
+		String response = singleReport.generateReportFromGatling();
+		FileUtils.deleteDirectory(new File(reportPath));
+		return response;
+	}
+	
 	private String frameURLGet(String inputURL, HttpServletRequest request) {
 		Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
 		Matcher m = MY_PATTERN.matcher(inputURL);

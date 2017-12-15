@@ -16,7 +16,6 @@ public class Service {
 	String requestMethod="";
 	String description="";
 	List<String> consume=new ArrayList<>();
-	List<String> produce=new ArrayList<>();
 	Map<String, Object> parameters = new HashMap<>();
 	
 	public String getServiceName() {
@@ -48,12 +47,6 @@ public class Service {
 	}
 	public void setConsume(List<String> consume) {
 		this.consume = consume;
-	}
-	public List<String> getProduce() {
-		return produce;
-	}
-	public void setProduce(List<String> produce) {
-		this.produce = produce;
 	}
 	public Map<String, Object> getParameters() {
 		return parameters;

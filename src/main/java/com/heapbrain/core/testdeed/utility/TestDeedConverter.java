@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 public class TestDeedConverter {
 
@@ -52,39 +53,63 @@ public class TestDeedConverter {
 		mapper4variable.put("long", 0l);
 	}
 
-	public String getParmeters(String serviceName, Map<String, Object> params) throws Exception {
+	public String getParmeters(String serviceName, Map<String, Object> params, String consumes) throws Exception {
 		requestAttributes = "";
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
 			if(entry.getKey().equals("RequestBody")) {
 				Class<?> [] inputValues = (Class<?>[]) entry.getValue();
 				for(Class<?> classTemp : inputValues) {
 					if(!declaredVariableType.contains(classTemp.getSimpleName())) {
-						requestAttributes += "<tr><td width=\"15%%\" height=\"20px\" valign=\"top\">Body"
-								+ "("+classTemp.getSimpleName()+")</td>"+
-		                "<td width=\"85%\" height=\"20px\"><textarea class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
-		                convertObjectToJson(getClassObject(classTemp.getName()))
-	                    +"</textarea></td></tr>";
+						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Body"
+								+ "("+classTemp.getSimpleName()+")</font></td>"+
+								"<td><textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
+								convertObjectToString(getClassObject(classTemp.getName()),consumes)
+								+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
+								classTemp.getSimpleName()+"</font></td></tr>";
 					}
 				}
-			} else {
+			} else if(entry.getKey().equals("PathVariable") || entry.getKey().equals("RequestParam")){
 				if(entry.getValue() instanceof List) {
 					@SuppressWarnings("unchecked")
 					List<String> parametersList = (List<String>)entry.getValue();
 					for(String paramsName : parametersList) {
-						requestAttributes += "<tr><td width=\"15%\" height=\"20px\" valign=\"top\">"
-								+paramsName+ "</td>"+
-		                "<td width=\"85%\" height=\"20px\"><input size=\"35\" type=\"text\" id=\""+paramsName+"\" name=\""+paramsName+"\"></td></tr>";
+						String[] param = paramsName.split("~");
+						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
+								+param[1]+ "</font></td>"+
+								"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\">"
+								+ "</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
+								+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
 					}
 				}
-				
-				
-				
+			} else if(entry.getKey().equals("NoParameterType")) {
+				@SuppressWarnings("unchecked")
+				List<String> parametersList = (List<String>)entry.getValue();
+				for(String paramsName : parametersList) {
+					String[] param = paramsName.split("~");
+					
+					if(!param[0].replaceAll("class ", "").startsWith("java")) {
+							Class<?> classTemp = Class.forName(param[0].replace("class ", ""));
+							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Body"
+									+ "("+classTemp.getSimpleName()+")</font></td>"+
+									"<td><textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
+									convertObjectToString(getClassObject(classTemp.getName()),consumes)
+									+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
+									classTemp.getSimpleName()+"</font></td></tr>";
+					}
+					else {
+						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
+								+param[1]+ "</font></td>"+
+								"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\">"
+								+ "</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
+								+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
+					}
+				}
 			}
 		}
 		return requestAttributes;
 	}
 
-	private String convertObjectToJson(Object object) {
+	private String convertObjectToString(Object object, String consumes) {
 
 		try {
 
@@ -110,22 +135,29 @@ public class TestDeedConverter {
 					} else if(collectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
 						Object genericObject = getClassObject(genericType);
 						loadCollectionObject(m, object, genericObject, type_name);
-						convertObjectToJson(genericObject);
+						convertObjectToString(genericObject,consumes);
 					} else if(pairCollectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
 						Object genericObject = getClassObject((genericType.split(",")[1]).trim());
 						String key = (genericType.split(",")[0]).toLowerCase();
 						Map<Object, Object> map = new HashMap<>();
 						map.put(key.substring(key.lastIndexOf(".")+1, key.length()), genericObject);
 						m.invoke(object,map);
-						convertObjectToJson(genericObject);
+						convertObjectToString(genericObject,consumes);
 					}
 
 				}
 			}
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-			mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+
+			if(consumes.endsWith("xml") && !object.equals("")) {
+				XmlMapper mapper = new XmlMapper();
+				mapper.enable(SerializationFeature.INDENT_OUTPUT);
+				return mapper.writeValueAsString(object);
+			} else if(!object.equals("")){
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+				mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+				return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

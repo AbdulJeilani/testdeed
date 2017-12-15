@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 
 public class ReportGenerateEngine {
-
+	
 	private String loadJS(File file) {
 		StringBuilder jsStringLoader = new StringBuilder();
 		final String[] SUFFIX = {"js"};
@@ -124,7 +124,8 @@ public class ReportGenerateEngine {
 	}
 
 	public String generateReportFromGatling() {
-		File file = new File(System.getProperty("user.dir")+"/reports");
+		
+		File file = new File(System.getProperty("user.dir")+"/target/performance/reports");
 
 		String convertGatlingToHeapColor = loadIndexHtml(file).
 				replaceAll("<meta charset=\"UTF-8\">", loadStyle(file)).

@@ -3,6 +3,7 @@ package com.heapbrain.core.testdeed.utility;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,82 +62,90 @@ public class TestDeedUtility {
 	public void loadMethodConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo) {
 		Service service = new Service();
 
-		int annotationCount = 0;
 		for (Method method : annotatedClass.getDeclaredMethods()) {
 			RequestMapping requestMapping = method.getDeclaredAnnotation(RequestMapping.class);
-			TestDeedApiOperation testDeedApiOperation = method.getDeclaredAnnotation(TestDeedApiOperation.class);
-			ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
+			if(requestMapping != null) {
+				TestDeedApiOperation testDeedApiOperation = method.getDeclaredAnnotation(TestDeedApiOperation.class);
+				ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
 
-			Map<String, Object> parameters = service.getParameters();
-			service.setConsume(Arrays.asList("application/xml","applicaton/json"));
-			service.setProduce((List<String>)Arrays.asList("application/xml","applicaton/json"));
+				int parameterCount =  0;
 
-			Annotation[][] annotations_params = method.getParameterAnnotations();
-			List<String> pathVariableList = new ArrayList<>();
-			List<String> requestParam = new ArrayList<>();
+				Map<String, Object> parameters = service.getParameters();
+				service.setConsume(Arrays.asList("application/xml","applicaton/json"));
 
-			for(Annotation[] annotation_params : annotations_params) {
-				for(Annotation annotation_param : annotation_params) {
-					if(annotation_param.annotationType().equals(PathVariable.class)) {
-						pathVariableList.add(((PathVariable) annotation_param).value());
-					}
-					if(annotation_param.annotationType().equals(RequestParam.class)) {
-						requestParam.add(((RequestParam) annotation_param).value());
-					}
-					if(annotation_param.annotationType().equals(RequestBody.class)) {
-						parameters.put("RequestBody", method.getParameterTypes());
+				Annotation[][] annotations_params = method.getParameterAnnotations();
+				List<String> pathVariableList = new ArrayList<>();
+				List<String> requestParam = new ArrayList<>();
+
+				for(Annotation[] annotation_params : annotations_params) {
+					for(Annotation annotation_param : annotation_params) {
+						if(annotation_param.annotationType().equals(PathVariable.class)) {
+							pathVariableList.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
+									+((PathVariable) annotation_param).value());
+							parameterCount++;
+						}
+						if(annotation_param.annotationType().equals(RequestParam.class)) {
+							requestParam.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
+									+((RequestParam) annotation_param).value());
+							parameterCount++;
+						}
+						if(annotation_param.annotationType().equals(RequestBody.class)) {
+							parameters.put("RequestBody", method.getParameterTypes());
+						}
 					}
 				}
-			}
-			parameters.put("PathVariable", pathVariableList);
-			parameters.put("RequestParam", requestParam);
+				parameters.put("PathVariable", pathVariableList);
+				parameters.put("RequestParam", requestParam);
 
-			service.setServiceName(method.getName());
-			if(!isSwagger && null != requestMapping) {
-				if(requestMapping.consumes()!=null && requestMapping.consumes().length != 0) {
-					service.setConsume(Arrays.asList(requestMapping.consumes()));
+				if(pathVariableList.isEmpty() && requestParam.isEmpty()) {
+					Parameter[] nonAnnotationParameters = method.getParameters();
+					List<String> commonParams = new ArrayList<>();
+					for (Parameter parameter : nonAnnotationParameters) {
+						commonParams.add(parameter.getParameterizedType()+"~"+parameter.getName());
+					}
+					parameters.put("NoParameterType", commonParams);
 				}
-				if(null != requestMapping.produces() && requestMapping.produces().length != 0) {
-					service.setProduce(Arrays.asList(requestMapping.produces()));
+
+				service.setServiceName(method.getName());
+				if(!isSwagger && null != requestMapping) {
+					if(requestMapping.consumes()!=null && requestMapping.consumes().length != 0) {
+						service.setConsume(Arrays.asList(requestMapping.consumes()));
+					}
+				} else if(null != apiOperation) {
+					if(null!=apiOperation.consumes() && !apiOperation.consumes().isEmpty()) {
+						service.setConsume(Arrays.asList(apiOperation.consumes()));
+					} if(null!=apiOperation.produces() && !apiOperation.produces().isEmpty()) {
+						service.setConsume(Arrays.asList(apiOperation.produces()));
+					} 
 				} 
 
-			} else if(null != apiOperation) {
-				if(null!=apiOperation.consumes() && !apiOperation.consumes().isEmpty()) {
-					service.setConsume(Arrays.asList(apiOperation.consumes()));
-				} if(null!=apiOperation.produces() && !apiOperation.produces().isEmpty()) {
-					service.setConsume(Arrays.asList(apiOperation.produces()));
+				if(null != requestMapping) {
+					if(0 != requestMapping.value().length) {
+						service.setRequestMapping(requestMapping.value()[0]);
+					} if(0 != requestMapping.method().length) {
+						service.setRequestMethod(requestMapping.method()[0].name());
+					}
 				} 
-			} 
 
-			if(null != requestMapping) {
-				service.setRequestMapping(requestMapping.value()[0]);
-				annotationCount++;
-				service.setRequestMethod(requestMapping.method()[0].name());
-				annotationCount++;
-			} 
-			if(null != testDeedApiOperation) {
-				TestDeedController.serviceMethodObject.setTestDeedName(testDeedApiOperation.name());
-				service.setServiceName(testDeedApiOperation.name());
-				service.setDescription(testDeedApiOperation.description());
-				annotationCount++;
-			}
-
-			if(annotationCount == 3) {
-				allServices.put(service.getRequestMapping(), service);
+				if(null != testDeedApiOperation) {
+					TestDeedController.serviceMethodObject.setTestDeedName(testDeedApiOperation.name());
+					service.setServiceName(testDeedApiOperation.name());
+					service.setDescription(testDeedApiOperation.description());
+				}
+				allServices.put(service.getRequestMapping()+"~"+service.getRequestMethod(), service);
 				TestDeedController.serviceMethodObjectMap.put(applicationInfo.getMapping()+service.getRequestMapping(), TestDeedController.serviceMethodObject);
 				TestDeedController.serviceMethodObject = new ServiceMethodObject();
-				annotationCount = 0;
+				service = new Service();
 			}
-			service = new Service();
 		}
 		applicationInfo.setServices(allServices);
 	}
 
 	public String getContentType(String serviceURL, List<String> contentTypes, String regards, boolean isPresent) {
 		StringBuffer contentType = new StringBuffer();
-		
+
 		contentType.append("<p style=\"margin:10px;\"><font color=\"#39495c\">Content Type</font>");
-		contentType.append("<select name=\""+serviceURL+"_"+regards+"\">");
+		contentType.append("<select name=\"service"+regards+"\">");
 		contentType.append("<option value=\""+regards+"\"><font color=\"#39495c\">"+regards+"</font></option>");
 		for(String content : contentTypes) {
 			if(isPresent) {
@@ -145,13 +154,13 @@ public class TestDeedUtility {
 			} else {
 				contentType.append("<option value=\""+content+"\"><font color=\"#39495c\">"+content+"</font></option>");
 			}
-			
+
 		}
 		contentType.append("</select></p>");
-		
+
 		return contentType.toString();
 	}
-	
+
 	public InputStream getHtmlFile(String fileName) {
 		ClassLoader classLoader = TestDeedUtility.class.getClassLoader();
 		return classLoader.getResourceAsStream(fileName);

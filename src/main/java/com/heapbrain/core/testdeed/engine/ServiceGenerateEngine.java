@@ -44,7 +44,7 @@ public class ServiceGenerateEngine {
 						+ "<option value=\""+TestDeedController.simulationClass+"\">"+TestDeedController.simulationClass+"</option></select>";
 			}
 			htmlString = htmlString.replace("~userdefinedsimulation~", userDefined);
-			
+
 			return htmlString;
 		} else {
 			return IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
@@ -89,29 +89,27 @@ public class ServiceGenerateEngine {
 		int serviceCount=0;
 		for(Map.Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
-			temp = serviceDesign;
-			temp = temp.replace("~serviceshowhideopen~", "<a href=\"javascript:showServices"+serviceCount+"();\">");
-			temp = temp.replace("~request.method~", service.getRequestMethod());
-			temp = temp.replace("~isexecute~", "isService_execute");
-			temp = temp.replace("~request.mapping~", baseMap+service.getRequestMapping());
-			temp = temp.replace("~service.description~", service.getDescription());
-			if(null == service.getConsume()) {
-				temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
-						Arrays.asList("application/xml","application/json"),"Consume",false));
-			} else {
-				temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
-						service.getConsume(), "Consume",true));
-			}
-			if(null == service.getProduce()) {
-				temp = temp.replace("~contenttype_produce~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
-						Arrays.asList("application/xml","application/json"),"Produce",false));
-			} else {
-				temp = temp.replace("~contenttype_produce~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
-						service.getProduce(), "Produce",true));
+			if(!entry.getKey().equals("~")) {
+				temp = serviceDesign;
+				temp = temp.replace("~serviceshowhideopen~", "<a href=\"javascript:showServices"+serviceCount+"();\">");
+				temp = temp.replace("~request.method~", service.getRequestMethod());
+				temp = temp.replace("~isexecute~", "isService_execute");
+				temp = temp.replace("~request.mapping~", baseMap+service.getRequestMapping());
+				temp = temp.replace("~service.description~", service.getDescription());
+				String consumes="";
+				if(null == service.getConsume()) {
+					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
+							Arrays.asList("application/xml","application/json"),"Consume",false));
+				} else {
+					consumes=service.getConsume().get(0);
+					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
+							service.getConsume(), "Consume",true));
+				}
+
+				response += temp + loadParameters(baseMap, service.getRequestMapping(), service.getParameters(), service.getRequestMethod(), consumes);
+				serviceCount++;
 			}
 			
-			response += temp + loadParameters(baseMap, service.getRequestMapping(), service.getParameters(), service.getRequestMethod());
-			serviceCount++;
 		}
 		return response;
 	}
@@ -121,7 +119,8 @@ public class ServiceGenerateEngine {
 		loadHostDetails.append("<select name=\"baseURL\">");
 		loadHostDetails.append("<option value=\""+localHost+"\">"+localHost+"</option>");
 		for(String host : TestDeedController.serverHosts) {
-			if(!host.equalsIgnoreCase(localHost)) {
+			
+			if(host !=null) {
 				if(host.equals(TestDeedController.prHost) && TestDeedController.isProdEnabled) {
 					loadHostDetails.append("<option value=\""+host+"\">"+host+"</option>");
 				} else if(!host.equals(TestDeedController.prHost)) {
@@ -134,11 +133,13 @@ public class ServiceGenerateEngine {
 		return loadHostDetails.toString();
 	}
 
-	private String loadParameters(String baseMap, String requestMapping, Map<String, Object> parameters, String requestMethod) throws Exception {
+	private String loadParameters(String baseMap, String requestMapping, Map<String, Object> parameters, 
+			String requestMethod, String consumes) throws Exception {
 
 		String parametersDesign = IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
 				Charset.forName("UTF-8")); 
-		parametersDesign = parametersDesign.replace("~id~", requestMapping+"_divshowhide");
+		parametersDesign = parametersDesign.replace("~id~", requestMapping+"~"+requestMethod+"_divshowhide");
+		
 		if(null != parameters.get("RequestBody")) {
 			Class<?>[] inputValues = (Class<?>[]) parameters.get("RequestBody");
 			for(Class<?> classTemp : inputValues) {
@@ -147,11 +148,11 @@ public class ServiceGenerateEngine {
 				}
 			} 
 		}else {
-			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~ ");
+			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
 		}
 
 		parametersDesign = parametersDesign.replace("~loadparameter~", 
-				testDeedConverter.getParmeters(baseMap+requestMapping, parameters));
+				testDeedConverter.getParmeters(baseMap+requestMapping, parameters, consumes));
 		return parametersDesign;
 
 	}

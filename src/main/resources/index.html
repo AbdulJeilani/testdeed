@@ -69,7 +69,7 @@ textarea {
 .logo {
 	font: 30px 'Arial Narrow', sans-serif;
 	/* I picked this font because it's the closest looking 'web safe' font http://cssfontstack.com/ */
-	color: #fefefe;
+	color: #39495c;
 	text-transform: uppercase;
 	letter-spacing: -1px;
 }
@@ -84,14 +84,14 @@ textarea {
 }
 
 .logo .word1 {
-	color: #dc006c;
+	color: #39495c;
 	transform: rotateY(180deg); /* using Prefix free */
 	display: inline-block; /* required for transform */
 	z-index: 10; /* stack 1st word on top */
 }
 
 .logo .word2 {
-	color: #dc006c;
+	color: #39495c;
 	z-index: 0; /* stack 2nd word below */
 }
 
@@ -174,16 +174,59 @@ input[type=text] {
 }
 </style>
 <script>
-	onload=function(){
-	var e=document.getElementById("refreshed");
-	if(e.value=="no")e.value="yes";
-	else{e.value="no";location.reload();}
+	function windowReload(){
+		if(!!window.performance && window.performance.navigation.type == 2) {
+			//window.location.reload();
+		}
 	}
 	function executeMethodFunction(clickedButton) {
 		document.getElementById("overlay").style.display = "block";
-		document.getElementById("simulationclass").value = "";
-		document.getElementById("executeService").value = clickedButton.id;
-		document.getElementById("loadreportform").submit();
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["executeService"].value = clickedButton.id;
+		
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["constantUsersPerSec"].value =
+			document.getElementById("loadreportform").elements["constantUsersPerSec"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["duration"].value =
+			document.getElementById("loadreportform").elements["duration"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["duration_select"].value =
+			document.getElementById("loadreportform").elements["duration_select"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["maxDuration"].value =
+			document.getElementById("loadreportform").elements["maxDuration"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["maxDuration_select"].value =
+			document.getElementById("loadreportform").elements["maxDuration_select"].value; 
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["atOnceUsers"].value = 
+			document.getElementById("loadreportform").elements["atOnceUsers"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUser"].value = 
+			document.getElementById("loadreportform").elements["rampUser"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUserOver"].value = 
+			document.getElementById("loadreportform").elements["rampUserOver"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUserOver_select"].value = 
+			document.getElementById("loadreportform").elements["rampUserOver_select"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUsersPerSec"].value = 
+			document.getElementById("loadreportform").elements["rampUsersPerSec"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUsersPerSecTo"].value = 
+			document.getElementById("loadreportform").elements["rampUsersPerSecTo"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUsersPerSecDuring"].value = 
+			document.getElementById("loadreportform").elements["rampUsersPerSecDuring"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["rampUsersPerSecDuring_select"].value = 
+			document.getElementById("loadreportform").elements["rampUsersPerSecDuring_select"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["nothingFor"].value = 
+			document.getElementById("loadreportform").elements["nothingFor"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["nothingFor_select"].value = 
+			document.getElementById("loadreportform").elements["nothingFor_select"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["status"].value = 
+			document.getElementById("loadreportform").elements["status"].value;
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["maxResponseTime"].value = 
+			document.getElementById("loadreportform").elements["maxResponseTime"].value;
+		
+		var value = (clickedButton.id).split("~")[0];
+		
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["serviceConsume"].value = 
+			document.getElementById("serviceform"+value).elements["serviceConsume"].value;
+		
+		document.getElementById("loadreportform"+(clickedButton.id)).elements["baseURL"].value = 
+			document.getElementById("loadreportform").elements["baseURL"].value;
+			
+		document.getElementById("loadreportform"+(clickedButton.id)).submit();
 	}
 	function executeUserMethodFunction(clickedButton) {
         var value = document.getElementById("simulationclass").value;
@@ -199,17 +242,17 @@ input[type=text] {
 }
 </script>
 </head>
-<body style="font-family: Arial">
+<body style="font-family: Arial" onload="windowReload();">
 	<form name="loadreportform" id="loadreportform" method="POST"
 		action="/loadrunner.html">
-		<input type="hidden" id="executeService" name="executeService" /> <input
-			type="hidden" id="refreshed" value="no" />
+		<input type="hidden" id="executeService" name="executeService" />
+		<input type="hidden" id="refreshed" value="no" />
 		<div id="overlay" style="display: none;">
 			<div id="loader"></div>
 		</div>
 		<h1 class="logo">
 			<a href="http://www.heapbrain.com" style="text-decoration: none">
-				<tab><span class="word1"><b>TSET</b></span></tab><span class="word2"><b>DEED</b></span>
+				<tab><span class="word1"><b>BH </b></span></tab><span class="word2"><b> T E S T D E E D</b></span>
 			</a>
 		</h1>
 		<div
@@ -297,7 +340,7 @@ input[type=text] {
 					id=" ~ ~ " onclick="executeUserMethodFunction(this)" /></tab>
 			</p>
 		</div>
-		<br /> ~addshowhidescript~ ~servicedetails~
-	</form>
+		</form>
+		<br /> ~addshowhidescript~ ~servicedetails~	
 </body>
 </html>
