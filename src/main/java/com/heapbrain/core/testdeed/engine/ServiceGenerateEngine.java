@@ -6,6 +6,7 @@ package com.heapbrain.core.testdeed.engine;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -147,7 +148,21 @@ public class ServiceGenerateEngine {
 					parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
 				}
 			} 
-		}else {
+		} else if(null != parameters.get("NoParameterType")) {
+			@SuppressWarnings("unchecked")
+			List<String> params = (List<String>) parameters.get("NoParameterType");
+			Class<?> classTemp;
+			for(String param : params) {
+				if(!param.replaceAll("class ", "").startsWith("java")) {
+					String subString = param.replaceAll("class ", "");
+					classTemp = Class.forName(subString.substring(0, subString.lastIndexOf("~")));
+					parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
+				} else {
+					parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
+				}
+			}
+		}
+		else {
 			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
 		}
 

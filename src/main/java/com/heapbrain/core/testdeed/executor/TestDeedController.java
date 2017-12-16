@@ -66,16 +66,16 @@ public class TestDeedController {
 				new ClassPathScanningCandidateComponentProvider(true);
 
 		simulationClass = loadUserDefinedSimulationClass();
-		
+
 		ApplicationInfo applicationInfo = new ApplicationInfo();
 		String currentUrl = request.getScheme()+"://"+request.getServerName();
 		if(-1 != request.getServerPort()) {
 			currentUrl += ":"+request.getServerPort();
 		}
 		applicationInfo.setServerLocalUrl(currentUrl);
-		
+
 		boolean isControllerPresent = false;
-		
+
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
 			Class<?> cl = Class.forName(bd.getBeanClassName());
 			if(isController(cl)) {
@@ -100,9 +100,9 @@ public class TestDeedController {
 			return false;
 		}
 	}
-	
+
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
-	public String loadPerformanceResult(HttpServletRequest request) {
+	public String loadPerformanceResult(HttpServletRequest request) throws IOException {
 		String html = "Report generation error :(";
 		try {
 
@@ -110,22 +110,19 @@ public class TestDeedController {
 			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
 				serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
 				serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
+				serviceMethodObject.setExecuteService(frameURL(requestMethod[0], request));
+				serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
+				serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 
-				if(requestMethod[1].equalsIgnoreCase("GET")) {
-					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
-					serviceMethodObject.setExecuteService(frameURLGet(requestMethod[0], request));
-					serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
-				} else if(requestMethod[1].equalsIgnoreCase("POST") || 
+				if(requestMethod[1].equalsIgnoreCase("POST") || 
 						requestMethod[1].equalsIgnoreCase("PUT")) {
-					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
-					serviceMethodObject.setExecuteService(frameURLPost(requestMethod[0], request));
 					serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
 				}
 			}
-			
+
 			loadGatlingUserConfiguration(request);
 			GatlingPropertiesBuilder props = new GatlingPropertiesBuilder();
-			
+
 			if(!request.getParameter("simulationclass").equals("")) {
 				simulationClass = request.getParameter("simulationclass");
 			} else {
@@ -135,7 +132,9 @@ public class TestDeedController {
 			props.resultsDirectory(reportPath);
 			html = syncRunner(props);
 		} catch (Exception e) {
-			html = "Check your application configuration. Report generation error : "+e.getMessage();
+			html = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
+					Charset.forName("UTF-8")).replace("~testdeedexception~", "Gatling configuration error : "
+							+e.getMessage() +" Solution : go back and refresh page");
 		}
 		return html;
 	}
@@ -147,25 +146,29 @@ public class TestDeedController {
 		FileUtils.deleteDirectory(new File(reportPath));
 		return response;
 	}
-	
-	private String frameURLGet(String inputURL, HttpServletRequest request) {
-		Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
-		Matcher m = MY_PATTERN.matcher(inputURL);
-		while(m.find()) {
-			request.getParameter(m.group(2));
-			inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter(m.group(2)));
-		}
-		return inputURL;
-	}
 
-	private String frameURLPost(String inputURL, HttpServletRequest request) {
-		inputURL = frameURLGet(inputURL,request);
+	private String frameURL(String inputURL, HttpServletRequest request) {
+		Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
+		if(!"".equals(request.getParameter("updatedURL"))) {
+			inputURL =  request.getParameter("updatedURL");
+		}
+		Matcher m = MY_PATTERN.matcher(inputURL);
+		int parameterCount = 0;
+		while(m.find()) {
+			if(null == request.getParameter(m.group(2))) {
+				inputURL = inputURL.replace("{"+m.group(2)+"}", m.group(2)+"="+request.getParameter("arg"+parameterCount));
+				parameterCount++;
+			} else {
+				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter(m.group(2)));
+			}
+
+		}
 		return inputURL;
 	}
 
 	private String isEmpty(String field, String requestParameter) {
 		if(requestParameter.equals("")) {
-				return "0";
+			return "0";
 		} else {
 			return requestParameter;
 		}
@@ -185,7 +188,7 @@ public class TestDeedController {
 		gatlingConfiguration.setStatus(Integer.parseInt(isEmpty("status",request.getParameter("status"))));
 		gatlingConfiguration.setMaxResponseTime(isEmpty("maxResponseTime",request.getParameter("maxResponseTime")));
 	}
-	
+
 	private String loadUserDefinedSimulationClass() {
 		final String[] SUFFIX = {"scala"};
 		StringBuilder returnValue=new StringBuilder();
@@ -202,5 +205,5 @@ public class TestDeedController {
 		});
 		return returnValue.toString().replace("package ","").replace(".scala", "");
 	}
-	
+
 }

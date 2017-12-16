@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,13 +82,40 @@ public class TestDeedUtility {
 				for(Annotation[] annotation_params : annotations_params) {
 					for(Annotation annotation_param : annotation_params) {
 						if(annotation_param.annotationType().equals(PathVariable.class)) {
-							pathVariableList.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
-									+((PathVariable) annotation_param).value());
+							if(!"".equals(((PathVariable) annotation_param).value())) {
+								pathVariableList.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
+										+((PathVariable) annotation_param).value());
+							} else {
+								Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
+								Matcher m = MY_PATTERN.matcher(requestMapping.value()[0]);
+								int findParamName=0;
+								while(m.find()) {
+									if(findParamName == parameterCount) {
+										pathVariableList.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
+												+m.group(2));
+									}
+									findParamName++;
+								}
+							}
 							parameterCount++;
 						}
 						if(annotation_param.annotationType().equals(RequestParam.class)) {
-							requestParam.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
-									+((RequestParam) annotation_param).value());
+							if(!"".equals(((RequestParam) annotation_param).value())) {
+								requestParam.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
+										+((RequestParam) annotation_param).value());
+							} else {
+								Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
+								Matcher m = MY_PATTERN.matcher(requestMapping.value()[0]);
+								int findParamName=0;
+								while(m.find()) {
+									if(findParamName == parameterCount) {
+										requestParam.add(method.getParameterTypes()[parameterCount].getSimpleName()+"~"
+												+m.group(2));
+									}
+									findParamName++;
+								}
+								
+							}
 							parameterCount++;
 						}
 						if(annotation_param.annotationType().equals(RequestBody.class)) {
@@ -97,7 +126,8 @@ public class TestDeedUtility {
 				parameters.put("PathVariable", pathVariableList);
 				parameters.put("RequestParam", requestParam);
 
-				if(pathVariableList.isEmpty() && requestParam.isEmpty()) {
+				if(pathVariableList.isEmpty() && requestParam.isEmpty()
+						&& null == parameters.get("RequestBody")) {
 					Parameter[] nonAnnotationParameters = method.getParameters();
 					List<String> commonParams = new ArrayList<>();
 					for (Parameter parameter : nonAnnotationParameters) {

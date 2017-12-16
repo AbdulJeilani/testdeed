@@ -86,23 +86,11 @@ public class TestDeedConverter {
 				List<String> parametersList = (List<String>)entry.getValue();
 				for(String paramsName : parametersList) {
 					String[] param = paramsName.split("~");
-					
-					if(!param[0].replaceAll("class ", "").startsWith("java")) {
-							Class<?> classTemp = Class.forName(param[0].replace("class ", ""));
-							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Body"
-									+ "("+classTemp.getSimpleName()+")</font></td>"+
-									"<td><textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
-									convertObjectToString(getClassObject(classTemp.getName()),consumes)
-									+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
-									classTemp.getSimpleName()+"</font></td></tr>";
-					}
-					else {
-						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
-								+param[1]+ "</font></td>"+
-								"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\">"
-								+ "</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
-								+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
-					}
+					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
+							+param[1]+ "</font></td>"+
+							"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\">"
+							+ "</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
+							+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
 				}
 			}
 		}
