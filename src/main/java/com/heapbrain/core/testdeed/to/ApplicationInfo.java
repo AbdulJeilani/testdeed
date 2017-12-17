@@ -10,9 +10,8 @@ import java.util.Map;
 public class ApplicationInfo {
 	String serverLocalUrl="";
 	String applicationName="{application.name.missing}";
-	String description="";
-	String mapping="";
 	String testDeedApi="";
+	String mapping="";
 	boolean isSwagger=false;
 	boolean isProdEnabled=false;
 	Map<String, Service> services = new HashMap<>();
@@ -28,12 +27,6 @@ public class ApplicationInfo {
 	}
 	public void setApplicationName(String applicationName) {
 		this.applicationName = applicationName;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
 	}
 	public String getMapping() {
 		return mapping;

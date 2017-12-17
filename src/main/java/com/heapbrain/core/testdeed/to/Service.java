@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class Service {
 	String serviceName="";
+	String serviceMethodName="";
 	String requestMapping="";
 	String requestMethod="";
 	String description="";
@@ -23,6 +24,12 @@ public class Service {
 	}
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
+	}
+	public String getServiceMethodName() {
+		return serviceMethodName;
+	}
+	public void setServiceMethodName(String serviceMethodName) {
+		this.serviceMethodName = serviceMethodName;
 	}
 	public String getRequestMapping() {
 		return requestMapping;

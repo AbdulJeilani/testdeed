@@ -45,8 +45,6 @@ public class TestDeedUtility {
 			isSwagger = testDeedApi.isSwaggerEnabled();
 			TestDeedController.isProdEnabled = testDeedApi.isProdEnabled();
 			applicationInfo.setTestDeedApi(testDeedApi.name());
-			TestDeedController.testDeedControllerName = testDeedApi.name();
-			applicationInfo.setDescription(testDeedApi.description());
 			applicationInfo.setSwagger(isSwagger);
 			applicationInfo.setProdEnabled(testDeedApi.isProdEnabled());
 		}
@@ -65,6 +63,7 @@ public class TestDeedUtility {
 		Service service = new Service();
 
 		for (Method method : annotatedClass.getDeclaredMethods()) {
+			service.setServiceName(applicationInfo.getTestDeedApi());
 			RequestMapping requestMapping = method.getDeclaredAnnotation(RequestMapping.class);
 			if(requestMapping != null) {
 				TestDeedApiOperation testDeedApiOperation = method.getDeclaredAnnotation(TestDeedApiOperation.class);
@@ -136,7 +135,7 @@ public class TestDeedUtility {
 					parameters.put("NoParameterType", commonParams);
 				}
 
-				service.setServiceName(method.getName());
+				service.setServiceMethodName(method.getName());
 				if(!isSwagger && null != requestMapping) {
 					if(requestMapping.consumes()!=null && requestMapping.consumes().length != 0) {
 						service.setConsume(Arrays.asList(requestMapping.consumes()));
@@ -159,7 +158,7 @@ public class TestDeedUtility {
 
 				if(null != testDeedApiOperation) {
 					TestDeedController.serviceMethodObject.setTestDeedName(testDeedApiOperation.name());
-					service.setServiceName(testDeedApiOperation.name());
+					service.setServiceMethodName(testDeedApiOperation.name());
 					service.setDescription(testDeedApiOperation.description());
 				}
 				allServices.put(service.getRequestMapping()+"~"+service.getRequestMethod(), service);

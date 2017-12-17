@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TestDeedApi {
 	String name() default "";
-	String description() default "";
 	boolean isSwaggerEnabled() default false;
 	boolean isProdEnabled() default false;
 }

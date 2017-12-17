@@ -5,6 +5,7 @@ package com.heapbrain.core.testdeed.to;
  */
 
 public class ServiceMethodObject {
+	String serviceName = "";
 	String method="";
 	String executeService="";
 	String testDeedName="";
@@ -12,6 +13,12 @@ public class ServiceMethodObject {
 	String acceptHeader="";
 	String requestBody="";
 	
+	public String getServiceName() {
+		return serviceName;
+	}
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
 	public String getMethod() {
 		return method;
 	}

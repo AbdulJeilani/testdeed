@@ -1,38 +1,47 @@
-<form name="serviceform~request.mapping~" id="serviceform~request.mapping~" method="POST"
-		action="/loadrunner.html">
-<div
-	style="background-color: #39495c; overflow: auto; margin: 5px; height: 45px; border-radius: 5px;"
-	class="cn">
-	~serviceshowhideopen~
+<form name="serviceform~request.mapping~"
+	id="serviceform~request.mapping~" method="POST"
+	action="/loadrunner.html">
 	<div
-		style="background-color: #39495c; overflow: auto; float: left; margin-top: 12px; margin-right: 10px; height: 20px; border-radius: 5px; text-align: left;">
-		<p></p>
-	</div>
+		style="background-color: #39495c; overflow: auto; margin: 5px; height: 45px; border-radius: 5px;"
+		class="cn">
+		~serviceshowhideopen~
+		<div
+			style="background-color: #39495c; overflow: auto; float: left; margin-top: 12px; margin-right: 10px; height: 20px; border-radius: 5px; text-align: left;">
+			<p></p>
+		</div>
 
-	<div
-		style="background-color: #FFFFFF; overflow: auto; float: left; margin: 2px; width: 75px; height: 40px; border-radius: 5px; text-align: center; border: 1px solid white;">
-		<p style="margin: 10px;">
-			<font color="#39495c">~request.method~</font>
-		</p>
-	</div>
+		<div
+			style="background-color: #FFFFFF; overflow: auto; float: left; margin: 2px; width: 75px; height: 40px; border-radius: 5px; text-align: center; border: 1px solid white;">
+			<p style="margin: 10px;">
+				<font color="#39495c">~request.method~</font>
+			</p>
+		</div>
 
-	<div
-		style="overflow: auto; float: left; width: 300px; margin: 2px; word-wrap: break-word; border-radius: 5px; text-align: left;">
-		<p style="margin: 10px;">
-			<font color="#FFFFFF"><u>~request.mapping~</u></font>
-		</p>
-	</div>
+		<div
+			style="overflow: auto; float: left; width: 300px; margin: 2px; word-wrap: break-word; border-radius: 5px; text-align: left;">
+			<p style="margin: 10px;">
+				<tab> <font color="#FFFFF">~application.service.name~</font></tab>
+			</p>
+		</div>
 
-	<div
-		style="overflow: auto; float: left; width: 400px; margin: 2px; word-wrap: break-word; border-radius: 5px; text-align: left;">
-		<p style="margin: 10px;">
-			<font color="#FFFFFF">~service.description~</font>
-		</p>
-	</div>
-	</a>
-	<div
-		style="overflow: auto; float: right; width =20px; margin: 0px; height: 40px; border-radius: 5px; text-align: right;">
-		~contenttype_consume~</div>
+		<div
+			style="overflow: auto; float: left; width: 300px; margin: 2px; word-wrap: break-word; border-radius: 5px; text-align: left;">
+			<p style="margin: 10px;">
+				<font color="#FFFFFF"><u>~request.mapping~</u></font>
+			</p>
+		</div>
 
-</div>
+		<div
+			style="overflow: auto; float: left; width: 400px; margin: 2px; word-wrap: break-word; border-radius: 5px; text-align: left;">
+			<p style="margin: 10px;">
+				<font color="#FFFFFF">~service.method.name~(~service.description~)</font>
+			</p>
+		</div>
+
+		</a>
+		<div
+			style="overflow: auto; float: right; width =20px; margin: 0px; height: 40px; border-radius: 5px; text-align: right;">
+			~contenttype_consume~</div>
+
+	</div>
 </form>

@@ -9,14 +9,14 @@ class TestDeedScenario {
 	var httpTestDeedLookup = scenario(""); 
 
 	if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
-		var httpTestDeedService = http(TestDeedController.testDeedControllerName
+		var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 				+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 				.post(TestDeedController.serviceMethodObject.getExecuteService())
 				.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asJSON
 				.check(status is TestDeedController.gatlingConfiguration.getStatus())
 
 				if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
-					httpTestDeedService = http(TestDeedController.testDeedControllerName
+					httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 							+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 							.post(TestDeedController.serviceMethodObject.getExecuteService())
 							.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asXML
@@ -28,7 +28,7 @@ class TestDeedScenario {
 				.exec(httpTestDeedService)
 	} 
 	if((TestDeedController.serviceMethodObject.getMethod())=="GET"){
-		var httpTestDeedService = http(TestDeedController.testDeedControllerName
+		var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 				+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 				.get(TestDeedController.serviceMethodObject.getExecuteService())
 				.check(status is TestDeedController.gatlingConfiguration.getStatus())

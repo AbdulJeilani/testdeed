@@ -32,8 +32,6 @@ public class ServiceGenerateEngine {
 			String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("index.html"), 
 					Charset.forName("UTF-8"));
 			htmlString = htmlString.replace("~application.name~", applicationInfo.getApplicationName());
-			htmlString = htmlString.replace("~application.service.name~", applicationInfo.getTestDeedApi());
-			htmlString = htmlString.replace("~application.service.description~", applicationInfo.getDescription());
 			htmlString = htmlString.replace("~addshowhidescript~", loadShowHideScript(applicationInfo.getServices()));
 			htmlString = htmlString.replace("~servicedetails~", loadServiceDetails(applicationInfo.getMapping(), applicationInfo.getServices()));
 			htmlString = htmlString.replaceAll("~listofservers~", loadHostDetails(applicationInfo.getServerLocalUrl()));
@@ -94,9 +92,10 @@ public class ServiceGenerateEngine {
 				temp = serviceDesign;
 				temp = temp.replace("~serviceshowhideopen~", "<a href=\"javascript:showServices"+serviceCount+"();\">");
 				temp = temp.replace("~request.method~", service.getRequestMethod());
-				temp = temp.replace("~isexecute~", "isService_execute");
 				temp = temp.replace("~request.mapping~", baseMap+service.getRequestMapping());
+				temp = temp.replace("~service.method.name~", service.getServiceMethodName());
 				temp = temp.replace("~service.description~", service.getDescription());
+				temp = temp.replace("~application.service.name~", service.getServiceName());
 				String consumes="";
 				if(null == service.getConsume()) {
 					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
@@ -107,7 +106,8 @@ public class ServiceGenerateEngine {
 							service.getConsume(), "Consume",true));
 				}
 
-				response += temp + loadParameters(baseMap, service.getRequestMapping(), service.getParameters(), service.getRequestMethod(), consumes);
+				response += temp + loadParameters(baseMap, service.getRequestMapping(), 
+						service.getParameters(), service.getRequestMethod(), consumes, service.getServiceName());
 				serviceCount++;
 			}
 			
@@ -135,12 +135,12 @@ public class ServiceGenerateEngine {
 	}
 
 	private String loadParameters(String baseMap, String requestMapping, Map<String, Object> parameters, 
-			String requestMethod, String consumes) throws Exception {
+			String requestMethod, String consumes, String serviceName) throws Exception {
 
 		String parametersDesign = IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
 				Charset.forName("UTF-8")); 
 		parametersDesign = parametersDesign.replace("~id~", requestMapping+"~"+requestMethod+"_divshowhide");
-		
+		parametersDesign = parametersDesign.replace("~application.service.name~", serviceName);
 		if(null != parameters.get("RequestBody")) {
 			Class<?>[] inputValues = (Class<?>[]) parameters.get("RequestBody");
 			for(Class<?> classTemp : inputValues) {

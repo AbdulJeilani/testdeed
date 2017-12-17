@@ -52,7 +52,6 @@ public class TestDeedController {
 	public static String basePackage = "";
 	public static List<String> serverHosts = new ArrayList<>();
 	public static String prHost = "";
-	public static String testDeedControllerName = "";
 	public static String reportPath="";
 	public static boolean isProdEnabled = false;
 	public static ServiceMethodObject serviceMethodObject = new ServiceMethodObject();
@@ -114,7 +113,8 @@ public class TestDeedController {
 				serviceMethodObject.setExecuteService(frameURL(requestMethod[0], request));
 				serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
 				serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
-
+				serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
+				
 				if(requestMethod[1].equalsIgnoreCase("POST") || 
 						requestMethod[1].equalsIgnoreCase("PUT")) {
 					serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
