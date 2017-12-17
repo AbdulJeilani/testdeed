@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,10 +76,9 @@ public class TestDeedController {
 		applicationInfo.setServerLocalUrl(currentUrl);
 
 		boolean isControllerPresent = false;
-
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
 			Class<?> cl = Class.forName(bd.getBeanClassName());
-			if(isController(cl)) {
+			if(isTestDeedConfigClass(cl)) {
 				testDeedUtility.loadClassConfig(cl, applicationInfo);
 				testDeedUtility.loadMethodConfig(cl, applicationInfo);
 				isControllerPresent = true;
@@ -92,9 +92,10 @@ public class TestDeedController {
 		}
 	}
 
-	private boolean isController(Class<?> classInput) {
+	private boolean isTestDeedConfigClass(Class<?> classInput) {
 		if(null != classInput.getDeclaredAnnotation(Controller.class) || 
-				null != classInput.getDeclaredAnnotation(RestController.class)) {
+				null != classInput.getDeclaredAnnotation(RestController.class) || 
+				null != classInput.getDeclaredAnnotation(SpringBootApplication.class)) {
 			return true;
 		} else {
 			return false;
@@ -156,7 +157,7 @@ public class TestDeedController {
 		int parameterCount = 0;
 		while(m.find()) {
 			if(null == request.getParameter(m.group(2))) {
-				inputURL = inputURL.replace("{"+m.group(2)+"}", m.group(2)+"="+request.getParameter("arg"+parameterCount));
+				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter("arg"+parameterCount));
 				parameterCount++;
 			} else {
 				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter(m.group(2)));
