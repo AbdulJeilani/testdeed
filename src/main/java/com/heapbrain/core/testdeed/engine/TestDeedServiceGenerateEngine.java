@@ -19,7 +19,7 @@ import com.heapbrain.core.testdeed.utility.TestDeedConverter;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 @Component
-public class ServiceGenerateEngine {
+public class TestDeedServiceGenerateEngine {
 
 	@Autowired
 	TestDeedUtility testDeedUtility;

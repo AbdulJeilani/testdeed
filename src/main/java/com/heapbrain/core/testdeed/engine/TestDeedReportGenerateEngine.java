@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
-public class ReportGenerateEngine {
+public class TestDeedReportGenerateEngine {
 	
 	@Autowired
 	public TestDeedUtility testDeedUtility;

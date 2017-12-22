@@ -9,16 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.heapbrain.core.testdeed.utility.TestDeedUtility;
+import com.heapbrain.core.testdeed.utility.TestDeedUtility;;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class TestDeedGlobalExceptionHandler {
 
 	@Autowired
 	TestDeedUtility testDeedUtility;
 
-	@ExceptionHandler(ValidationException.class)
-	String validationExceptionHandler(ValidationException e) throws IOException {
+	@ExceptionHandler(TestDeedValidationException.class)
+	String validationExceptionHandler(TestDeedValidationException e) throws IOException {
 		return IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
 				Charset.forName("UTF-8"))
 				.replace("~testdeedexception~", HttpStatus.BAD_REQUEST.toString()+" - "+e.getMessage());

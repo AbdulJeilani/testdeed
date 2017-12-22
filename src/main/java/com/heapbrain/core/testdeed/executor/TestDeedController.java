@@ -28,9 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.common.Constant;
-import com.heapbrain.core.testdeed.engine.ReportGenerateEngine;
-import com.heapbrain.core.testdeed.engine.ServiceGenerateEngine;
-import com.heapbrain.core.testdeed.exception.ValidationException;
+import com.heapbrain.core.testdeed.engine.TestDeedReportGenerateEngine;
+import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
+import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.GatlingConfiguration;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
@@ -44,7 +44,7 @@ import io.gatling.core.config.GatlingPropertiesBuilder;
 public class TestDeedController {
 
 	@Autowired
-	public ServiceGenerateEngine serviceGenerateEngine;
+	public TestDeedServiceGenerateEngine testDeedServiceGenerateEngine;
 
 	@Autowired
 	public TestDeedUtility testDeedUtility;
@@ -86,7 +86,7 @@ public class TestDeedController {
 			}
 		}
 		if(isControllerPresent) {
-			return serviceGenerateEngine.generateHomePage(applicationInfo)
+			return testDeedServiceGenerateEngine.generateHomePage(applicationInfo)
 					.replace("~controllerClasses~", controllerClasses.toString().replaceAll("\\[|\\]", ""));
 		} else {
 			return testDeedUtility.getErrorResponse("No controller or TestDeed config not found in application.");
@@ -156,7 +156,7 @@ public class TestDeedController {
 
 	private String syncRunner(GatlingPropertiesBuilder props) throws IOException {
 		Gatling.fromMap(props.build());
-		ReportGenerateEngine singleReport = new ReportGenerateEngine();
+		TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
 		String response = singleReport.generateReportFromGatling();
 		FileUtils.deleteDirectory(new File(reportPath));
 		return response;
@@ -212,7 +212,7 @@ public class TestDeedController {
 							+"."+f.getName());
 				}
 			} catch (Exception e) {
-				throw new ValidationException(Constant.CONFIGURATION_ERROR +" User defined simulation class does not exist ");
+				throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" User defined simulation class does not exist ");
 			}
 		});
 		return returnValue.toString().replace("package ","").replace(".scala", "");

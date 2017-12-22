@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.heapbrain.core.testdeed.engine.ServiceGenerateEngine;
+import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
 
 public class TestDeedConverter {
 
@@ -87,10 +87,10 @@ public class TestDeedConverter {
 						String[] param = paramsName.split("~");
 						if(entry.getKey().equals("RequestParam")) {
 							updateURLParam(param[1]);
-							/*if(ServiceGenerateEngine.updatedURL.equals("")) {
-								ServiceGenerateEngine.updatedURL += "?"+param[1]+"={"+param[1]+"}";
+							/*if(TestDeedServiceGenerateEngine.updatedURL.equals("")) {
+								TestDeedServiceGenerateEngine.updatedURL += "?"+param[1]+"={"+param[1]+"}";
 							} else {
-								ServiceGenerateEngine.updatedURL += "&"+param[1]+"={"+param[1]+"}";
+								TestDeedServiceGenerateEngine.updatedURL += "&"+param[1]+"={"+param[1]+"}";
 							}*/
 						}
 						if(entry.getKey().equals("RequestHeader")) {
@@ -212,10 +212,10 @@ public class TestDeedConverter {
 	}
 
 	private void updateURLParam(String parameter) {
-		if(ServiceGenerateEngine.updatedURL.equals("")) {
-			ServiceGenerateEngine.updatedURL += "?"+parameter+"={"+parameter+"}";
+		if(TestDeedServiceGenerateEngine.updatedURL.equals("")) {
+			TestDeedServiceGenerateEngine.updatedURL += "?"+parameter+"={"+parameter+"}";
 		} else {
-			ServiceGenerateEngine.updatedURL += "&"+parameter+"={"+parameter+"}";
+			TestDeedServiceGenerateEngine.updatedURL += "&"+parameter+"={"+parameter+"}";
 		}
 	}
 }
