@@ -106,7 +106,8 @@ public class TestDeedServiceGenerateEngine {
 				}
 
 				response += temp + loadParameters(baseMap, service.getRequestMapping(), 
-						service.getParameters(), service.getRequestMethod(), consumes, service.getServiceName());
+						service.getParameters(), service.getRequestMethod(), consumes, service.getServiceName(),
+						service.getServiceMethodName(),service.getDescription());
 				serviceCount++;
 			}
 
@@ -134,13 +135,16 @@ public class TestDeedServiceGenerateEngine {
 	}
 
 	private String loadParameters(String baseMap, String requestMapping, Map<String, Object> parameters, 
-			String requestMethod, String consumes, String serviceName) throws Exception {
+			String requestMethod, String consumes, String serviceName, String methodName, String methodDescription) throws Exception {
 
 		String parametersDesign = IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
 				Charset.forName("UTF-8")); 
 		parametersDesign = parametersDesign.replace("~id~", requestMapping+"~"+requestMethod+"_divshowhide");
 		parametersDesign = parametersDesign.replace("~application.service.name~", serviceName);
 
+		parametersDesign = parametersDesign.replace("~service.method.name~", methodName);
+		parametersDesign = parametersDesign.replace("~service.description~", methodDescription);
+		
 		if(null != parameters.get("RequestBody")) {
 			Class<?> classTemp = parameters.get("RequestBody").getClass();
 			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {

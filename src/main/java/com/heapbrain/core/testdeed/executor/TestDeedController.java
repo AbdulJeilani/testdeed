@@ -96,10 +96,9 @@ public class TestDeedController {
 	private boolean isTestDeedConfigClass(Class<?> classInput) {
 		if(null != classInput.getDeclaredAnnotation(Controller.class) || 
 				null != classInput.getDeclaredAnnotation(RestController.class) || 
-				null != classInput.getDeclaredAnnotation(SpringBootApplication.class)) {
-			if(null != classInput.getDeclaredAnnotation(TestDeedApi.class)) {
-				return true;
-			}
+				null != classInput.getDeclaredAnnotation(SpringBootApplication.class) || 
+				null != classInput.getDeclaredAnnotation(TestDeedApi.class)) {
+			return true;
 		}
 		return false;
 	}
@@ -118,7 +117,7 @@ public class TestDeedController {
 
 				Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
 				headerObj.put("Content-Type", request.getParameter("serviceConsume"));
-				
+
 				if(null != request.getParameter("requestHeader")) {
 					String[] allHeaders = (request.getParameter("requestHeader").replaceAll("\\[|\\]", "")).split(",");
 					for(String header : allHeaders) {
