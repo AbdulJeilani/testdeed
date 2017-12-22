@@ -6,7 +6,6 @@ package com.heapbrain.core.testdeed.engine;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -24,7 +23,7 @@ public class ServiceGenerateEngine {
 
 	@Autowired
 	TestDeedUtility testDeedUtility;
-
+	public static String updatedURL = "";
 	TestDeedConverter testDeedConverter = new TestDeedConverter();
 
 	public String generateHomePage(ApplicationInfo applicationInfo) throws Exception {
@@ -99,7 +98,7 @@ public class ServiceGenerateEngine {
 				String consumes="";
 				if(null == service.getConsume()) {
 					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
-							Arrays.asList("application/xml","application/json"),"Consume",false));
+							Arrays.asList("application/xml","application/json","multipart/form-data"),"Consume",false));
 				} else {
 					consumes=service.getConsume().get(0);
 					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
@@ -110,7 +109,7 @@ public class ServiceGenerateEngine {
 						service.getParameters(), service.getRequestMethod(), consumes, service.getServiceName());
 				serviceCount++;
 			}
-			
+
 		}
 		return response;
 	}
@@ -120,7 +119,7 @@ public class ServiceGenerateEngine {
 		loadHostDetails.append("<select name=\"baseURL\">");
 		loadHostDetails.append("<option value=\""+localHost+"\">"+localHost+"</option>");
 		for(String host : TestDeedController.serverHosts) {
-			
+
 			if(host !=null) {
 				if(host.equals(TestDeedController.prHost) && TestDeedController.isProdEnabled) {
 					loadHostDetails.append("<option value=\""+host+"\">"+host+"</option>");
@@ -141,33 +140,21 @@ public class ServiceGenerateEngine {
 				Charset.forName("UTF-8")); 
 		parametersDesign = parametersDesign.replace("~id~", requestMapping+"~"+requestMethod+"_divshowhide");
 		parametersDesign = parametersDesign.replace("~application.service.name~", serviceName);
+
 		if(null != parameters.get("RequestBody")) {
-			Class<?>[] inputValues = (Class<?>[]) parameters.get("RequestBody");
-			for(Class<?> classTemp : inputValues) {
-				if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
-					parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
-				}
-			} 
-		} else if(null != parameters.get("NoParameterType")) {
-			@SuppressWarnings("unchecked")
-			List<String> params = (List<String>) parameters.get("NoParameterType");
-			Class<?> classTemp;
-			for(String param : params) {
-				if(!param.replaceAll("class ", "").startsWith("java")) {
-					String subString = param.replaceAll("class ", "");
-					classTemp = Class.forName(subString.substring(0, subString.lastIndexOf("~")));
-					parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
-				} else {
-					parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
-				}
+			Class<?> classTemp = parameters.get("RequestBody").getClass();
+			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
+				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
 			}
-		}
-		else {
+		} else {
 			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
 		}
 
 		parametersDesign = parametersDesign.replace("~loadparameter~", 
 				testDeedConverter.getParmeters(baseMap+requestMapping, parameters, consumes));
+
+		parametersDesign = parametersDesign.replace("~updatedURL~", updatedURL);
+		updatedURL = "";
 		return parametersDesign;
 
 	}

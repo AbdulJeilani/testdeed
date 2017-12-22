@@ -1,5 +1,8 @@
 package com.heapbrain.core.testdeed.to;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author AbdulJeilani
  */
@@ -12,7 +15,28 @@ public class ServiceMethodObject {
 	String baseURL="";
 	String acceptHeader="";
 	String requestBody="";
+	Map<String, String> headerObj = new HashMap<String, String>();
+	String multiPart1 = "";
+	String multiPart2 = "";
 	
+	public String getMultiPart1() {
+		return multiPart1;
+	}
+	public void setMultiPart1(String multiPart1) {
+		this.multiPart1 = multiPart1;
+	}
+	public String getMultiPart2() {
+		return multiPart2;
+	}
+	public void setMultiPart2(String multiPart2) {
+		this.multiPart2 = multiPart2;
+	}
+	public Map<String, String> getHeaderObj() {
+		return headerObj;
+	}
+	public void setHeaderObj(Map<String, String> headerObj) {
+		this.headerObj = headerObj;
+	}
 	public String getServiceName() {
 		return serviceName;
 	}

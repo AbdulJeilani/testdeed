@@ -6,6 +6,7 @@ package com.heapbrain.core.testdeed.utility;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,21 +24,18 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.heapbrain.core.testdeed.engine.ServiceGenerateEngine;
 
 public class TestDeedConverter {
 
-	public static List<String> declaredVariableType = new ArrayList<String>();
-	List<String> collectionClass = new ArrayList<String>();
-	List<String> pairCollectionClass = new ArrayList<String>();
+	public static List<String> declaredVariableType = Arrays.asList("String","Byte","Character","Integer","Float","Double","Long","Short","int","char");
+	public static List<String> collectionClass = Arrays.asList("List","Set","Queue","Collection");
+	List<String> pairCollectionClass = Arrays.asList("Map");
 	Map<String, Object> mapper4variable = new HashMap<String, Object>();
 
 	String requestAttributes = "";
 
 	public TestDeedConverter() {
-		declaredVariableType = Arrays.asList("String","Byte","Character","Integer","Float","Double","Long","Short","int","char");
-		collectionClass = Arrays.asList("List","Set","Queue","Collection");
-		pairCollectionClass = Arrays.asList("Map");
-
 		mapper4variable.put("String", "string");
 		mapper4variable.put("Byte", (byte)0);
 		mapper4variable.put("byte", (byte)0);
@@ -55,44 +53,75 @@ public class TestDeedConverter {
 
 	public String getParmeters(String serviceName, Map<String, Object> params, String consumes) throws Exception {
 		requestAttributes = "";
+		List<String> requestHeader = new ArrayList<String>();
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
 			if(entry.getKey().equals("RequestBody")) {
-				Class<?> [] inputValues = (Class<?>[]) entry.getValue();
-				for(Class<?> classTemp : inputValues) {
-					if(!declaredVariableType.contains(classTemp.getSimpleName())) {
-						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Body"
-								+ "("+classTemp.getSimpleName()+")</font></td>"+
-								"<td><textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
-								convertObjectToString(getClassObject(classTemp.getName()),consumes)
-								+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
-								classTemp.getSimpleName()+"</font></td></tr>";
+				Class<?> classTemp = entry.getValue().getClass();
+				if(!declaredVariableType.contains(classTemp.getSimpleName())) {
+					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Body"
+							+ "("+classTemp.getSimpleName()+")</font></td>"+
+							"<td><textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
+							convertObjectToString(getClassObject(classTemp.getName()),consumes)
+							+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
+							classTemp.getSimpleName()+"</font></td></tr>";
+				}
+			} else if(entry.getKey().equals("ModelAttribute")) {
+				Class<?> classTemp = entry.getValue().getClass();
+				if(!declaredVariableType.contains(classTemp.getSimpleName())) {
+					Field[] fields = classTemp.getDeclaredFields();
+					for(Field field : fields) {
+						updateURLParam(field.getName());
+						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
+								+field.getName()+ "</font></td>"+
+								"<td><input size=\"35\" type=\"text\" id=\""+field.getName()+"\" name=\""+field.getName()+"\"/>"
+								+"</td><td><font color=\"#3c495a\">Query(Model)</font></td>"
+								+ "<td><font color=\"#3c495a\">"+field.getType().getSimpleName()+"</font></td></tr>";
 					}
 				}
-			} else if(entry.getKey().equals("PathVariable") || entry.getKey().equals("RequestParam")){
+			} else if(entry.getKey().equals("PathVariable") || entry.getKey().equals("RequestParam")
+					|| entry.getKey().equals("RequestHeader")){
 				if(entry.getValue() instanceof List) {
 					@SuppressWarnings("unchecked")
 					List<String> parametersList = (List<String>)entry.getValue();
 					for(String paramsName : parametersList) {
 						String[] param = paramsName.split("~");
-						requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
-								+param[1]+ "</font></td>"+
-								"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\">"
-								+ "</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
-								+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
+						if(entry.getKey().equals("RequestParam")) {
+							updateURLParam(param[1]);
+							/*if(ServiceGenerateEngine.updatedURL.equals("")) {
+								ServiceGenerateEngine.updatedURL += "?"+param[1]+"={"+param[1]+"}";
+							} else {
+								ServiceGenerateEngine.updatedURL += "&"+param[1]+"={"+param[1]+"}";
+							}*/
+						}
+						if(entry.getKey().equals("RequestHeader")) {
+							requestHeader.add(param[1]);
+							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
+									+param[1]+ "</font></td>"+
+									"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>"
+									+"</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
+									+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
+						} else {
+							String multiError = "";
+							if(param[0].startsWith("MultipartFile")) {
+								multiError =  " <font color=\"#bb3d3f\"> Add your file path with name to build Multipart object for Gatling</font>";
+							}
+							String textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
+							if(collectionClass.contains(param[0].split("&")[0])) {
+								textField = "<textarea style=\"width:240px;\" class=\"text-container\" id=\""
+										+param[1]+"\" name=\""+param[1]+"\"></textarea>";
+							}
+							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
+									+param[1]+ "</font></td>"+
+									"<td>"+textField
+									+ multiError+"</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
+									+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
+						}
 					}
 				}
-			} else if(entry.getKey().equals("NoParameterType")) {
-				@SuppressWarnings("unchecked")
-				List<String> parametersList = (List<String>)entry.getValue();
-				for(String paramsName : parametersList) {
-					String[] param = paramsName.split("~");
-					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
-							+param[1]+ "</font></td>"+
-							"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\">"
-							+ "</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
-							+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
-				}
 			}
+		}
+		if(!requestHeader.isEmpty()) {
+			requestAttributes += "<input type=\"text\" id=\"requestHeader\" name=\"requestHeader\" value=\""+requestHeader+"\"/>";
 		}
 		return requestAttributes;
 	}
@@ -100,7 +129,6 @@ public class TestDeedConverter {
 	private String convertObjectToString(Object object, String consumes) {
 
 		try {
-
 			for(PropertyDescriptor propertyDescriptor : 
 				Introspector.getBeanInfo(object.getClass()).getPropertyDescriptors()) {
 				Method m = propertyDescriptor.getWriteMethod();
@@ -178,9 +206,16 @@ public class TestDeedConverter {
 		}
 	}
 
-	private Object getClassObject(String className) throws Exception {
+	public static Object getClassObject(String className) throws Exception {
 		Class<?> clazz = Class.forName(className);
 		return clazz.getConstructor().newInstance(new Object[] {});
 	}
 
+	private void updateURLParam(String parameter) {
+		if(ServiceGenerateEngine.updatedURL.equals("")) {
+			ServiceGenerateEngine.updatedURL += "?"+parameter+"={"+parameter+"}";
+		} else {
+			ServiceGenerateEngine.updatedURL += "&"+parameter+"={"+parameter+"}";
+		}
+	}
 }

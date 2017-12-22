@@ -13,6 +13,8 @@ class TestDeedSimulation extends Simulation {
 			var maxResponseTime = scala.util.Properties.envOrElse("maxResponseTime", 
 					TestDeedController.gatlingConfiguration.getMaxResponseTime)
 
+					println(Environment.baseURL)
+					
 			var testDeedSimulation = List(
 					testDeedScenario.httpTestDeedLookup.inject(
 							nothingFor(Duration.apply(TestDeedController.gatlingConfiguration.getNothingFor()).asInstanceOf[FiniteDuration]),

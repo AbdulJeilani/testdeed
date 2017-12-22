@@ -9,8 +9,14 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 public class ReportGenerateEngine {
+	
+	@Autowired
+	public TestDeedUtility testDeedUtility;
 	
 	private String loadJS(File file) {
 		StringBuilder jsStringLoader = new StringBuilder();
@@ -21,7 +27,8 @@ public class ReportGenerateEngine {
 				jsStringLoader.append(FileUtils.readFileToString(f,Charset.forName("UTF-8")));
 				jsStringLoader.append("</script>");
 			} catch (IOException e) {
-				e.printStackTrace();
+				jsStringLoader.setLength(0);
+				jsStringLoader.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
 			}
 		});
 		return jsStringLoader.toString();
@@ -69,7 +76,8 @@ public class ReportGenerateEngine {
 			try {
 				styleStringLoader.append(FileUtils.readFileToString(f,Charset.forName("UTF-8")));
 			} catch (IOException e) {
-				e.printStackTrace();
+				styleStringLoader.setLength(0);
+				styleStringLoader.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
 			}
 		});
 		styleStringLoader.append("</style>");
@@ -85,7 +93,8 @@ public class ReportGenerateEngine {
 					htmlStringLoader.append(FileUtils.readFileToString(f,Charset.forName("UTF-8")));
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				htmlStringLoader.setLength(0);
+				htmlStringLoader.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
 			}
 		});
 
@@ -95,7 +104,7 @@ public class ReportGenerateEngine {
 
 	private String loadDetailsReport(File file) {
 		StringBuilder detailedReport = new StringBuilder();
-		detailedReport.append("<div class=\\\"content-in\\\">");
+		detailedReport.append("<div class=\"content-in\">");
 		detailedReport.append("<script>function on() {document.getElementById(\"overlay\").style.display = \"block\";" + 
 				"}function off() { document.getElementById(\"overlay\").style.display = \"none\";}" + 
 				"</script><div id=\"overlay\" onclick=\"off()\">");
@@ -107,7 +116,8 @@ public class ReportGenerateEngine {
 					detailedReport.replace(detailedReport.indexOf("<link "), detailedReport.indexOf("<title>"), "");
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				detailedReport.setLength(0);
+				detailedReport.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
 			}
 		});
 		detailedReport.append("</div></div><div class=\"content-in\">");
@@ -127,28 +137,28 @@ public class ReportGenerateEngine {
 		
 		File file = new File(System.getProperty("user.dir")+"/target/performance/reports");
 
-		String convertGatlingToHeapColor = loadIndexHtml(file).
+		String convertGatlingToTestDeed = loadIndexHtml(file).
 				replaceAll("<meta charset=\"UTF-8\">", loadStyle(file)).
 				replaceAll("<div class=\"content-in\">","~AddSubReport~").
 				replace("<a href=\"index.html\">GLOBAL","<a href=\"javascript:off();\">GLOBAL").
 				replaceAll("<div class=\"item \"><a id=\"details_link\" href=\"#\">DETAILS</a></div>",
 						"<div class=\"item \"><a href=\"javascript:on();\">DETAILS</a></div>");
 
-		convertGatlingToHeapColor = convertGatlingToHeapColor.replaceAll("#E37400", "#3C495A").
+		convertGatlingToTestDeed = convertGatlingToTestDeed.replaceAll("#E37400", "#3C495A").
 				replaceAll("#d16b00", "#cdd3dd").
 				replaceAll("#ff9916", "#3C495A").
 				replaceAll("#FF9916", "#3C495A").
 				replaceAll("#CF6900", "#cdd3dd");
 
-		convertGatlingToHeapColor = 	convertGatlingToHeapColor.replace("~AddSubReport~",loadDetailsReport(file)).
+		convertGatlingToTestDeed = 	convertGatlingToTestDeed.replace("~AddSubReport~",loadDetailsReport(file)).
 				replaceAll("<div class=\"container1 details\">", "<div class=\"container details\">").
 				replaceAll("<div class=\"nav\">","<div class=\"nav1\">");	
 
-		convertGatlingToHeapColor = convertGatlingToHeapColor.replaceAll("<img alt=\"Gatling\" src=\"style/logo.png\"/>", 
+		convertGatlingToTestDeed = convertGatlingToTestDeed.replaceAll("<img alt=\"Gatling\" src=\"style/logo.png\"/>", 
 				"<font>Gatling Report (Save - report [File->save])</font>").
 				replaceAll("<img alt=\"Gatling\" src=\"style/logo-gatling.jpg\"/>","<font>@Gatling</font>");
 
-		return convertGatlingToHeapColor;
+		return convertGatlingToTestDeed;
 	}
 
 }

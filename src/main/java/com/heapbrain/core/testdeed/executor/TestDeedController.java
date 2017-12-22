@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.common.Constant;
 import com.heapbrain.core.testdeed.engine.ReportGenerateEngine;
 import com.heapbrain.core.testdeed.engine.ServiceGenerateEngine;
@@ -62,6 +62,7 @@ public class TestDeedController {
 	@RequestMapping(value = "/testdeed.html", method = RequestMethod.GET)
 	public String loadServicePage(HttpServletRequest request) throws Exception {
 
+		List<String> controllerClasses = new ArrayList<String>();
 		ClassPathScanningCandidateComponentProvider scanner =
 				new ClassPathScanningCandidateComponentProvider(true);
 
@@ -71,8 +72,8 @@ public class TestDeedController {
 		String currentUrl = request.getScheme()+"://"+request.getServerName();
 		if(-1 != request.getServerPort()) {
 			currentUrl += ":"+request.getServerPort();
+			applicationInfo.setServerLocalUrl(currentUrl);
 		}
-		applicationInfo.setServerLocalUrl(currentUrl);
 
 		boolean isControllerPresent = false;
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
@@ -80,14 +81,15 @@ public class TestDeedController {
 			if(isTestDeedConfigClass(cl)) {
 				testDeedUtility.loadClassConfig(cl, applicationInfo);
 				testDeedUtility.loadMethodConfig(cl, applicationInfo);
+				controllerClasses.add(cl.getSimpleName());
 				isControllerPresent = true;
 			}
 		}
 		if(isControllerPresent) {
-			return serviceGenerateEngine.generateHomePage(applicationInfo);
+			return serviceGenerateEngine.generateHomePage(applicationInfo)
+					.replace("~controllerClasses~", controllerClasses.toString().replaceAll("\\[|\\]", ""));
 		} else {
-			return IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
-					Charset.forName("UTF-8")).replace("~testdeedexception~", "No controller found in application.");
+			return testDeedUtility.getErrorResponse("No controller or TestDeed config not found in application.");
 		}
 	}
 
@@ -95,17 +97,16 @@ public class TestDeedController {
 		if(null != classInput.getDeclaredAnnotation(Controller.class) || 
 				null != classInput.getDeclaredAnnotation(RestController.class) || 
 				null != classInput.getDeclaredAnnotation(SpringBootApplication.class)) {
-			return true;
-		} else {
-			return false;
+			if(null != classInput.getDeclaredAnnotation(TestDeedApi.class)) {
+				return true;
+			}
 		}
+		return false;
 	}
 
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
-	public String loadPerformanceResult(HttpServletRequest request) throws IOException {
-		String html = "Report generation error :(";
+	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
 		try {
-
 			String[] requestMethod = request.getParameter("executeService").split("~");
 			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
 				serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
@@ -114,10 +115,25 @@ public class TestDeedController {
 				serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
 				serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 				serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
+
+				Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
+				headerObj.put("Content-Type", request.getParameter("serviceConsume"));
 				
+				if(null != request.getParameter("requestHeader")) {
+					String[] allHeaders = (request.getParameter("requestHeader").replaceAll("\\[|\\]", "")).split(",");
+					for(String header : allHeaders) {
+						headerObj.put(header, request.getParameter(header));
+					}
+				}
+				serviceMethodObject.setHeaderObj(headerObj);
+
 				if(requestMethod[1].equalsIgnoreCase("POST") || 
 						requestMethod[1].equalsIgnoreCase("PUT")) {
-					serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
+					if(requestMethod.length > 2 && null != requestMethod[2]) {
+						if(!requestMethod[2].startsWith("MultipartFile")) {
+							serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
+						}
+					}
 				}
 			}
 
@@ -131,16 +147,14 @@ public class TestDeedController {
 			}
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
-			html = syncRunner(props);
+			return syncRunner(props);
 		} catch (Exception e) {
-			html = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
-					Charset.forName("UTF-8")).replace("~testdeedexception~", "Gatling configuration error : "
-							+e.getMessage() +" Solution : go back and refresh page");
+			return testDeedUtility.getErrorResponse("Gatling configuration error : "
+					+e.getMessage() +" Solution : go back and refresh page");
 		}
-		return html;
 	}
 
-	private synchronized String syncRunner(GatlingPropertiesBuilder props) throws IOException {
+	private String syncRunner(GatlingPropertiesBuilder props) throws IOException {
 		Gatling.fromMap(props.build());
 		ReportGenerateEngine singleReport = new ReportGenerateEngine();
 		String response = singleReport.generateReportFromGatling();
@@ -151,18 +165,15 @@ public class TestDeedController {
 	private String frameURL(String inputURL, HttpServletRequest request) {
 		Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
 		if(!"".equals(request.getParameter("updatedURL"))) {
-			inputURL =  request.getParameter("updatedURL");
+			inputURL =  inputURL + request.getParameter("updatedURL");
 		}
 		Matcher m = MY_PATTERN.matcher(inputURL);
-		int parameterCount = 0;
 		while(m.find()) {
-			if(null == request.getParameter(m.group(2))) {
-				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter("arg"+parameterCount));
-				parameterCount++;
-			} else {
+			if(null != request.getParameter(m.group(2))) {
 				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter(m.group(2)));
+				serviceMethodObject.setMultiPart1(m.group(2));
+				serviceMethodObject.setMultiPart2(request.getParameter(m.group(2)));
 			}
-
 		}
 		return inputURL;
 	}
