@@ -79,7 +79,7 @@ public class TestDeedUtility {
 				ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
 
 				Map<String, Object> parameters = service.getParameters();
-				service.setConsume(Arrays.asList("application/xml","applicaton/json","multipart/form-data"));
+				service.setConsume(Arrays.asList("applicaton/json","application/xml","multipart/form-data"));
 
 				Annotation[][] annotations_params = method.getParameterAnnotations();
 				List<String> pathVariableList = new ArrayList<>();

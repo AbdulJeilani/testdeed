@@ -103,7 +103,7 @@ public class TestDeedConverter {
 						} else {
 							String multiError = "";
 							if(param[0].startsWith("MultipartFile")) {
-								multiError =  " <font color=\"#bb3d3f\"> Add your file path with name to build Multipart object for Gatling</font>";
+								multiError =  " <font color=\"#bb3d3f\"> Add your file path to build Multipart object for Gatling</font>";
 							}
 							String textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
 							if(collectionClass.contains(param[0].split("&")[0])) {
