@@ -155,9 +155,8 @@ public class TestDeedUtility {
 	public String getContentType(String serviceURL, List<String> contentTypes, String regards, boolean isPresent) {
 		StringBuffer contentType = new StringBuffer();
 
-		contentType.append("<p style=\"margin:10px;\"><font color=\"#39495c\">Content Type</font>");
-		contentType.append("<select name=\"service"+regards+"\">");
-		contentType.append("<option value=\""+regards+"\"><font color=\"#39495c\">"+regards+"</font></option>");
+		contentType.append("<p style=\"margin:10px;\"><font color=\"#3c495a\">Consumes&nbsp;&nbsp;</font>");
+		contentType.append("<select style=\"width: 130px;\" name=\"service"+regards+"\">");
 		for(String content : contentTypes) {
 			if(isPresent) {
 				contentType.append("<option selected value=\""+content+"\"><font color=\"#39495c\">"+content+"</font></option>");

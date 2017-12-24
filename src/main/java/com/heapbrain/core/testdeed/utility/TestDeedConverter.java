@@ -58,9 +58,10 @@ public class TestDeedConverter {
 			if(entry.getKey().equals("RequestBody")) {
 				Class<?> classTemp = entry.getValue().getClass();
 				if(!declaredVariableType.contains(classTemp.getSimpleName())) {
-					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Body"
+					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Feeder<br/>Body"
 							+ "("+classTemp.getSimpleName()+")</font></td>"+
-							"<td><textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
+							"<td><input type=\"file\" id=\"bodyFeeder\" name=\"bodyFeeder\"/><br/>"
+							+ "<textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
 							convertObjectToString(getClassObject(classTemp.getName()),consumes)
 							+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
 							classTemp.getSimpleName()+"</font></td></tr>";
@@ -121,7 +122,7 @@ public class TestDeedConverter {
 			}
 		}
 		if(!requestHeader.isEmpty()) {
-			requestAttributes += "<input type=\"text\" id=\"requestHeader\" name=\"requestHeader\" value=\""+requestHeader+"\"/>";
+			requestAttributes += "<input type=\"hidden\" id=\"requestHeader\" name=\"requestHeader\" value=\""+requestHeader+"\"/>";
 		}
 		return requestAttributes;
 	}

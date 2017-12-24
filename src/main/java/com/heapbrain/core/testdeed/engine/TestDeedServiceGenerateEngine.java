@@ -148,6 +148,7 @@ public class TestDeedServiceGenerateEngine {
 		if(null != parameters.get("RequestBody")) {
 			Class<?> classTemp = parameters.get("RequestBody").getClass();
 			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
+				parametersDesign = parametersDesign.replace("~isfileupload~", "enctype=\"multipart/form-data\"");
 				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
 			}
 		} else {

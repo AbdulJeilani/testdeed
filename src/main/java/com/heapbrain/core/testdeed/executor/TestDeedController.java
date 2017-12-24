@@ -1,10 +1,13 @@
 package com.heapbrain.core.testdeed.executor;
 
+import java.io.BufferedOutputStream;
+
 /**
  * @author AbdulJeilani
  */
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -24,7 +27,9 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.common.Constant;
@@ -81,7 +86,9 @@ public class TestDeedController {
 			if(isTestDeedConfigClass(cl)) {
 				testDeedUtility.loadClassConfig(cl, applicationInfo);
 				testDeedUtility.loadMethodConfig(cl, applicationInfo);
-				controllerClasses.add(cl.getSimpleName());
+				if(null == cl.getDeclaredAnnotation(SpringBootApplication.class)) {
+					controllerClasses.add(cl.getSimpleName());
+				}
 				isControllerPresent = true;
 			}
 		}
@@ -104,9 +111,11 @@ public class TestDeedController {
 	}
 
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
-	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
+	public synchronized String loadPerformanceResult(HttpServletRequest request, 
+			@RequestParam("bodyFeeder") MultipartFile bodyFeeder) throws IOException {
 		try {
 			String[] requestMethod = request.getParameter("executeService").split("~");
+			
 			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
 				serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
 				serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
@@ -115,6 +124,18 @@ public class TestDeedController {
 				serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 				serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
 
+				if(!bodyFeeder.isEmpty()) {
+					byte[] bytes = bodyFeeder.getBytes();
+					String path = System.getProperty("user.dir")+"/target/classes/feeder.json";
+					String[] configurations = new String(bytes).split("#values#");
+					serviceMethodObject.setFeederRuleObj(configurations[0]);
+					FileUtils.touch(new File(path));
+					BufferedOutputStream stream = new BufferedOutputStream(
+	                        new FileOutputStream(new File(path)));
+					stream.write(configurations[1].getBytes(Charset.forName("UTF-8")));
+	                stream.close();
+				}
+				
 				Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
 				headerObj.put("Content-Type", request.getParameter("serviceConsume"));
 
@@ -129,7 +150,7 @@ public class TestDeedController {
 				if(requestMethod[1].equalsIgnoreCase("POST") || 
 						requestMethod[1].equalsIgnoreCase("PUT")) {
 					if(requestMethod.length > 2 && null != requestMethod[2]) {
-						if(!requestMethod[2].startsWith("MultipartFile")) {
+						if(!requestMethod[2].startsWith("MultipartFile") && bodyFeeder.isEmpty()) {
 							serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
 						}
 					}
@@ -141,8 +162,10 @@ public class TestDeedController {
 
 			if(!request.getParameter("simulationclass").equals("")) {
 				simulationClass = request.getParameter("simulationclass");
-			} else {
+			} else if(bodyFeeder.isEmpty()){
 				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedSimulation";
+			} else {
+				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedFeederSimulation";
 			}
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
@@ -154,10 +177,10 @@ public class TestDeedController {
 	}
 
 	private String syncRunner(GatlingPropertiesBuilder props) throws IOException {
+		FileUtils.deleteDirectory(new File(reportPath));
 		Gatling.fromMap(props.build());
 		TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
 		String response = singleReport.generateReportFromGatling();
-		FileUtils.deleteDirectory(new File(reportPath));
 		return response;
 	}
 

@@ -16,9 +16,16 @@ public class ServiceMethodObject {
 	String acceptHeader="";
 	String requestBody="";
 	Map<String, String> headerObj = new HashMap<String, String>();
+	String feederRuleObj = "";
 	String multiPart1 = "";
 	String multiPart2 = "";
 	
+	public String getFeederRuleObj() {
+		return feederRuleObj;
+	}
+	public void setFeederRuleObj(String feederRuleObj) {
+		this.feederRuleObj = feederRuleObj;
+	}
 	public String getMultiPart1() {
 		return multiPart1;
 	}

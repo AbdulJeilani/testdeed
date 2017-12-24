@@ -11,9 +11,6 @@ class TestDeedScenario {
 	var httpTestDeedLookup = scenario(""); 
 	var scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
 
-			println(scalaHeader)
-			println(TestDeedController.serviceMethodObject.getExecuteService())
-			println(TestDeedController.serviceMethodObject.getRequestBody())
 			try {
 				if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
 					var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
@@ -43,13 +40,6 @@ class TestDeedScenario {
 
 					httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
 							.exec(flushHttpCache)
-							.exec(_.set("sessionAttribute", """{
-  "name" : "string",
-  "empId" : "string",
-  "testTOSub" : [ {
-    "name" : "string"
-  } ]
-}"""))
 							.exec(httpTestDeedService)
 				}
 
