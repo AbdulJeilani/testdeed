@@ -64,6 +64,8 @@ public class TestDeedServiceGenerateEngine {
 	private String loadShowHideScript(Map<String, Service> services) {
 		String script = "<script language=\"javascript\">";
 		int serviceCount=0;
+		StringBuilder hideAllService = new StringBuilder();
+		StringBuilder showAllService = new StringBuilder();
 		for(Map.Entry<String, Service> entry : services.entrySet()) {
 			script += "function showServices"+serviceCount+"() {";
 			String variable = "x"+(serviceCount);
@@ -74,11 +76,19 @@ public class TestDeedServiceGenerateEngine {
 			script += variable+".style.display = \"none\";";
 			script += "}}";
 			serviceCount++;
+			hideAllService.append("document.getElementById(\""+entry.getKey()+"_divshowhide\").style.display = \"none\";");
+			showAllService.append("document.getElementById(\""+entry.getKey()+"_divshowhide\").style.display = \"block\";");
 		}
+		
+		script += "function hideAllService(){"+hideAllService+"}";
+		script += "function showAllService() {"+showAllService+"}";
+		
 		script += "</script>";
 		return script;
 	}
 
+	
+	
 	private String loadServiceDetails(String baseMap, Map<String, Service> services) throws Exception {
 		String response = "";
 		String temp = "";
@@ -148,7 +158,7 @@ public class TestDeedServiceGenerateEngine {
 		if(null != parameters.get("RequestBody")) {
 			Class<?> classTemp = parameters.get("RequestBody").getClass();
 			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
-				parametersDesign = parametersDesign.replace("~isfileupload~", "enctype=\"multipart/form-data\"");
+				//parametersDesign = parametersDesign.replace("~isfileupload~", "enctype=\"multipart/form-data\"");
 				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
 			}
 		} else {

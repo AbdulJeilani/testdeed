@@ -1,16 +1,26 @@
 package com.heapbrain.core.testdeed.gatling
 
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import scala.collection.JavaConverters.mapAsScalaMapConverter
+
 import com.heapbrain.core.testdeed.executor.TestDeedController
-import scala.collection.JavaConverters._
-import scala.collection.Map
+
+import io.gatling.core.Predef.StringBody
+import io.gatling.core.Predef.checkBuilder2Check
+import io.gatling.core.Predef.findCheckBuilder2ValidatorCheckBuilder
+import io.gatling.core.Predef.rawFileBodies
+import io.gatling.core.Predef.scenario
+import io.gatling.core.Predef.stringToExpression
+import io.gatling.core.Predef.value2Expression
+import io.gatling.http.Predef.RawFileBodyPart
+import io.gatling.http.Predef.StringBodyPart
+import io.gatling.http.Predef.flushHttpCache
+import io.gatling.http.Predef.http
+import io.gatling.http.Predef.status
 
 class TestDeedScenario { 
 
 	var httpTestDeedLookup = scenario(""); 
 	var scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
-
 			try {
 				if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
 					var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
@@ -65,7 +75,7 @@ class TestDeedScenario {
 								+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 								.put(TestDeedController.serviceMethodObject.getExecuteService())
 								.headers(scalaHeader)
-								.formUpload(TestDeedController.serviceMethodObject.getMultiPart1(),TestDeedController.serviceMethodObject.getMultiPart2())
+								.bodyPart(RawFileBodyPart(TestDeedController.serviceMethodObject.getMultiPart1(),TestDeedController.serviceMethodObject.getMultiPart2()))
 								.check(status is TestDeedController.gatlingConfiguration.getStatus())
 					}  
 

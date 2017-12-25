@@ -87,12 +87,9 @@ public class TestDeedConverter {
 					for(String paramsName : parametersList) {
 						String[] param = paramsName.split("~");
 						if(entry.getKey().equals("RequestParam")) {
-							updateURLParam(param[1]);
-							/*if(TestDeedServiceGenerateEngine.updatedURL.equals("")) {
-								TestDeedServiceGenerateEngine.updatedURL += "?"+param[1]+"={"+param[1]+"}";
-							} else {
-								TestDeedServiceGenerateEngine.updatedURL += "&"+param[1]+"={"+param[1]+"}";
-							}*/
+							if(!param[0].startsWith("MultipartFile")) {
+								updateURLParam(param[1]);
+							}
 						}
 						if(entry.getKey().equals("RequestHeader")) {
 							requestHeader.add(param[1]);
@@ -102,11 +99,15 @@ public class TestDeedConverter {
 									+"</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
 									+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
 						} else {
-							String multiError = "";
+							String textField = "";
 							if(param[0].startsWith("MultipartFile")) {
-								multiError =  " <font color=\"#bb3d3f\"> Add your file path to build Multipart object for Gatling</font>";
+								textField = "<input size=\"35\" type=\"file\" id=\"multipartfile\" name=\"multipartfile\"/>";
+								requestAttributes += "<input type=\"hidden\" id=\"multipartfile_object\" name=\"multipartfile_object\" value=\""+param[1]+"\"/>";
+								//isMultipart = true;
+							} else {
+								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
 							}
-							String textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
+							
 							if(collectionClass.contains(param[0].split("&")[0])) {
 								textField = "<textarea style=\"width:240px;\" class=\"text-container\" id=\""
 										+param[1]+"\" name=\""+param[1]+"\"></textarea>";
@@ -114,7 +115,7 @@ public class TestDeedConverter {
 							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
 									+param[1]+ "</font></td>"+
 									"<td>"+textField
-									+ multiError+"</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
+									+"</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
 									+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
 						}
 					}
@@ -124,6 +125,12 @@ public class TestDeedConverter {
 		if(!requestHeader.isEmpty()) {
 			requestAttributes += "<input type=\"hidden\" id=\"requestHeader\" name=\"requestHeader\" value=\""+requestHeader+"\"/>";
 		}
+		/*if(!params.containsKey("RequestBody")) {
+			requestAttributes += "<input type=\"hidden\" id=\"bodyFeeder\" name=\"bodyFeeder\"/>";
+		}
+		if(!isMultipart) {
+			requestAttributes += "<input size=\"35\" type=\"hidden\" id=\"multipartfile\" name=\"multipartfile\"/>";
+		}*/
 		return requestAttributes;
 	}
 

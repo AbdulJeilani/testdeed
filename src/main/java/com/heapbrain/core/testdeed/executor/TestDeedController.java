@@ -18,8 +18,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,9 +29,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.common.Constant;
@@ -39,6 +39,7 @@ import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.GatlingConfiguration;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
+import com.heapbrain.core.testdeed.utility.TestDeedSupportUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 import io.gatling.app.Gatling;
@@ -111,10 +112,12 @@ public class TestDeedController {
 	}
 
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
-	public synchronized String loadPerformanceResult(HttpServletRequest request, 
-			@RequestParam("bodyFeeder") MultipartFile bodyFeeder) throws IOException {
+	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
 		try {
 			String[] requestMethod = request.getParameter("executeService").split("~");
+			
+			Part bodyFeeder = request.getPart("bodyFeeder");
+			Part multipartfile = request.getPart("multipartfile");
 			
 			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
 				serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
@@ -124,16 +127,31 @@ public class TestDeedController {
 				serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 				serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
 
-				if(!bodyFeeder.isEmpty()) {
-					byte[] bytes = bodyFeeder.getBytes();
+				if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
+					byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
 					String path = System.getProperty("user.dir")+"/target/classes/feeder.json";
 					String[] configurations = new String(bytes).split("#values#");
 					serviceMethodObject.setFeederRuleObj(configurations[0]);
+					if(!TestDeedSupportUtil.isValidJSON(configurations[1])) {
+						return testDeedUtility.getErrorResponse("Gatling configuration error : Feeder JSON not valid format"); 
+					}
 					FileUtils.touch(new File(path));
 					BufferedOutputStream stream = new BufferedOutputStream(
 	                        new FileOutputStream(new File(path)));
 					stream.write(configurations[1].getBytes(Charset.forName("UTF-8")));
 	                stream.close();
+				}
+				
+				if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
+					byte[] bytes = IOUtils.toByteArray(multipartfile.getInputStream());
+					String path = System.getProperty("user.dir")+"/target/performance/upload/"+multipartfile.getSubmittedFileName();
+					FileUtils.touch(new File(path));
+					BufferedOutputStream stream = new BufferedOutputStream(
+	                        new FileOutputStream(new File(path)));
+					stream.write(bytes);
+	                stream.close();
+					serviceMethodObject.setMultiPart1(request.getParameter("multipartfile_object"));
+					serviceMethodObject.setMultiPart2(path);
 				}
 				
 				Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
@@ -150,7 +168,7 @@ public class TestDeedController {
 				if(requestMethod[1].equalsIgnoreCase("POST") || 
 						requestMethod[1].equalsIgnoreCase("PUT")) {
 					if(requestMethod.length > 2 && null != requestMethod[2]) {
-						if(!requestMethod[2].startsWith("MultipartFile") && bodyFeeder.isEmpty()) {
+						if(!requestMethod[2].startsWith("MultipartFile")) {
 							serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
 						}
 					}
@@ -162,17 +180,16 @@ public class TestDeedController {
 
 			if(!request.getParameter("simulationclass").equals("")) {
 				simulationClass = request.getParameter("simulationclass");
-			} else if(bodyFeeder.isEmpty()){
-				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedSimulation";
-			} else {
+			} else if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")){
 				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedFeederSimulation";
+			} else {
+				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedSimulation";
 			}
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
 			return syncRunner(props);
 		} catch (Exception e) {
-			return testDeedUtility.getErrorResponse("Gatling configuration error : "
-					+e.getMessage() +" Solution : go back and refresh page");
+			return testDeedUtility.getErrorResponse("Gatling configuration error : "+e.getMessage());
 		}
 	}
 
@@ -193,8 +210,6 @@ public class TestDeedController {
 		while(m.find()) {
 			if(null != request.getParameter(m.group(2))) {
 				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter(m.group(2)));
-				serviceMethodObject.setMultiPart1(m.group(2));
-				serviceMethodObject.setMultiPart2(request.getParameter(m.group(2)));
 			}
 		}
 		return inputURL;
