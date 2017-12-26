@@ -14,6 +14,8 @@ import io.gatling.core.Predef.value2Expression
 import io.gatling.http.Predef.RawFileBodyPart
 import io.gatling.http.Predef.StringBodyPart
 import io.gatling.http.Predef.flushHttpCache
+import io.gatling.http.Predef.flushCookieJar
+import io.gatling.http.Predef.flushSessionCookies
 import io.gatling.http.Predef.http
 import io.gatling.http.Predef.status
 
@@ -21,81 +23,93 @@ class TestDeedScenario {
 
 	var httpTestDeedLookup = scenario(""); 
 	var scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
-			try {
-				if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
-					var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
-							+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-							.post(TestDeedController.serviceMethodObject.getExecuteService())
-							.headers(scalaHeader)
-							.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asJSON
-							.check(status is TestDeedController.gatlingConfiguration.getStatus())
 
-							if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
-								httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
-										+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-										.post(TestDeedController.serviceMethodObject.getExecuteService())
-										.headers(scalaHeader)
-										.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asXML
-										.check(status is TestDeedController.gatlingConfiguration.getStatus())
-							}
+			println("Method : "+TestDeedController.serviceMethodObject.getMethod());
+	println("Service Name : "+TestDeedController.serviceMethodObject.getServiceName());
+	println("RequestBody : "+TestDeedController.serviceMethodObject.getRequestBody());
+	println("ExecuteService : " + TestDeedController.serviceMethodObject.getExecuteService())
 
-					if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
+	try {
+		if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
+			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+					.post(TestDeedController.serviceMethodObject.getExecuteService())
+					.headers(scalaHeader)
+					.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asJSON
+					.check(status is TestDeedController.gatlingConfiguration.getStatus())
+
+					if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
 						httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 								+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 								.post(TestDeedController.serviceMethodObject.getExecuteService())
 								.headers(scalaHeader)
-								.formUpload(TestDeedController.serviceMethodObject.getMultiPart1(),TestDeedController.serviceMethodObject.getMultiPart2())
+								.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asXML
 								.check(status is TestDeedController.gatlingConfiguration.getStatus())
-					}  
+					}
 
-					httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
-							.exec(flushHttpCache)
-							.exec(httpTestDeedService)
-				}
+			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
+				httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+						+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+						.post(TestDeedController.serviceMethodObject.getExecuteService())
+						.headers(scalaHeader)
+						.formUpload(TestDeedController.serviceMethodObject.getMultiPart1(),TestDeedController.serviceMethodObject.getMultiPart2())
+						.check(status is TestDeedController.gatlingConfiguration.getStatus())
+			}  
 
-				if((TestDeedController.serviceMethodObject.getMethod())=="PUT"){
-					var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
-							+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-							.put(TestDeedController.serviceMethodObject.getExecuteService())
-							.headers(scalaHeader)
-							.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asJSON
-							.check(status is TestDeedController.gatlingConfiguration.getStatus())
+			httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
+					.exec(httpTestDeedService)
+					.exec(flushHttpCache)
+					.exec(flushCookieJar)
+					.exec(flushSessionCookies)
+		}
 
-							if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
-								httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
-										+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-										.put(TestDeedController.serviceMethodObject.getExecuteService())
-										.headers(scalaHeader)
-										.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asXML
-										.check(status is TestDeedController.gatlingConfiguration.getStatus())
-							}
+		if((TestDeedController.serviceMethodObject.getMethod())=="PUT"){
+			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+					.put(TestDeedController.serviceMethodObject.getExecuteService())
+					.headers(scalaHeader)
+					.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asJSON
+					.check(status is TestDeedController.gatlingConfiguration.getStatus())
 
-					if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
+					if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
 						httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 								+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 								.put(TestDeedController.serviceMethodObject.getExecuteService())
 								.headers(scalaHeader)
-								.bodyPart(RawFileBodyPart(TestDeedController.serviceMethodObject.getMultiPart1(),TestDeedController.serviceMethodObject.getMultiPart2()))
+								.body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asXML
 								.check(status is TestDeedController.gatlingConfiguration.getStatus())
-					}  
+					}
 
-					httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
-							.exec(flushHttpCache)
-							.exec(httpTestDeedService)
-				}
+			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
+				httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+						+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+						.put(TestDeedController.serviceMethodObject.getExecuteService())
+						.headers(scalaHeader)
+						.bodyPart(RawFileBodyPart(TestDeedController.serviceMethodObject.getMultiPart1(),TestDeedController.serviceMethodObject.getMultiPart2()))
+						.check(status is TestDeedController.gatlingConfiguration.getStatus())
+			}  
 
-				if((TestDeedController.serviceMethodObject.getMethod())=="GET"){
-					var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
-							+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-							.get(TestDeedController.serviceMethodObject.getExecuteService())
-							.headers(scalaHeader)
-							.check(status is TestDeedController.gatlingConfiguration.getStatus())
+			httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
+					.exec(httpTestDeedService)
+					.exec(flushHttpCache)
+					.exec(flushCookieJar)
+					.exec(flushSessionCookies)
+		}
 
-							httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName()) 
-							.exec(flushHttpCache)
-							.exec(httpTestDeedService)
-				}
-			} catch {
-			case e: Exception => println(e)
-			}
+		if((TestDeedController.serviceMethodObject.getMethod())=="GET"){
+			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+					.get(TestDeedController.serviceMethodObject.getExecuteService())
+					.headers(scalaHeader)
+					.check(status is TestDeedController.gatlingConfiguration.getStatus())
+
+					httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName()) 
+					.exec(httpTestDeedService)
+					.exec(flushHttpCache)
+					.exec(flushCookieJar)
+					.exec(flushSessionCookies)
+		}
+	} catch {
+	case e: Exception => println(e)
+	}
 }

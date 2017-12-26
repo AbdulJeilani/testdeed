@@ -1,6 +1,8 @@
 package com.heapbrain.core.testdeed.to;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,14 +18,14 @@ public class ServiceMethodObject {
 	String acceptHeader="";
 	String requestBody="";
 	Map<String, String> headerObj = new HashMap<String, String>();
-	String feederRuleObj = "";
+	List<String> feederRuleObj = new ArrayList<>();
 	String multiPart1 = "";
 	String multiPart2 = "";
 	
-	public String getFeederRuleObj() {
+	public List<String> getFeederRuleObj() {
 		return feederRuleObj;
 	}
-	public void setFeederRuleObj(String feederRuleObj) {
+	public void setFeederRuleObj(List<String> feederRuleObj) {
 		this.feederRuleObj = feederRuleObj;
 	}
 	public String getMultiPart1() {

@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +35,9 @@ public class TestDeedConverter {
 	List<String> pairCollectionClass = Arrays.asList("Map");
 	Map<String, Object> mapper4variable = new HashMap<String, Object>();
 
+	@Autowired
+	TestDeedUtility testDeedUtility;
+	
 	String requestAttributes = "";
 
 	public TestDeedConverter() {
@@ -43,10 +48,10 @@ public class TestDeedConverter {
 		mapper4variable.put("char", 'c');
 		mapper4variable.put("Integer", 0);
 		mapper4variable.put("int",0);
-		mapper4variable.put("Float", 0.0);
-		mapper4variable.put("float", 0.0);
-		mapper4variable.put("Double", 0);
-		mapper4variable.put("Double", 0);
+		mapper4variable.put("Float", 0.0f);
+		mapper4variable.put("float", 0.0f);
+		mapper4variable.put("Double", 0.0d);
+		mapper4variable.put("double", 0.0d);
 		mapper4variable.put("Long", 0l);
 		mapper4variable.put("long", 0l);
 	}
@@ -57,12 +62,14 @@ public class TestDeedConverter {
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
 			if(entry.getKey().equals("RequestBody")) {
 				Class<?> classTemp = entry.getValue().getClass();
+				String jsonValue = convertObjectToString(getClassObject(classTemp.getName()),consumes);
 				if(!declaredVariableType.contains(classTemp.getSimpleName())) {
-					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Feeder<br/>Body"
+					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Feeder (choose file)<br/>Body"
 							+ "("+classTemp.getSimpleName()+")</font></td>"+
-							"<td><input type=\"file\" id=\"bodyFeeder\" name=\"bodyFeeder\"/><br/>"
+							"<td><input type=\"file\" id=\"bodyFeeder\" name=\"bodyFeeder\"/>"
+							+ "<br/>"
 							+ "<textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
-							convertObjectToString(getClassObject(classTemp.getName()),consumes)
+							jsonValue
 							+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
 							classTemp.getSimpleName()+"</font></td></tr>";
 				}
@@ -103,7 +110,6 @@ public class TestDeedConverter {
 							if(param[0].startsWith("MultipartFile")) {
 								textField = "<input size=\"35\" type=\"file\" id=\"multipartfile\" name=\"multipartfile\"/>";
 								requestAttributes += "<input type=\"hidden\" id=\"multipartfile_object\" name=\"multipartfile_object\" value=\""+param[1]+"\"/>";
-								//isMultipart = true;
 							} else {
 								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
 							}
@@ -125,12 +131,6 @@ public class TestDeedConverter {
 		if(!requestHeader.isEmpty()) {
 			requestAttributes += "<input type=\"hidden\" id=\"requestHeader\" name=\"requestHeader\" value=\""+requestHeader+"\"/>";
 		}
-		/*if(!params.containsKey("RequestBody")) {
-			requestAttributes += "<input type=\"hidden\" id=\"bodyFeeder\" name=\"bodyFeeder\"/>";
-		}
-		if(!isMultipart) {
-			requestAttributes += "<input size=\"35\" type=\"hidden\" id=\"multipartfile\" name=\"multipartfile\"/>";
-		}*/
 		return requestAttributes;
 	}
 
@@ -162,9 +162,7 @@ public class TestDeedConverter {
 						convertObjectToString(genericObject,consumes);
 					} else if(pairCollectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
 						Object genericObject = getClassObject((genericType.split(",")[1]).trim());
-						String key = (genericType.split(",")[0]).toLowerCase();
 						Map<Object, Object> map = new HashMap<>();
-						map.put(key.substring(key.lastIndexOf(".")+1, key.length()), genericObject);
 						m.invoke(object,map);
 						convertObjectToString(genericObject,consumes);
 					}
@@ -183,7 +181,7 @@ public class TestDeedConverter {
 				return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			testDeedUtility.getErrorResponse("TestDeed error : Unable to convert object to JSON/XML"+e.getMessage());
 		}
 
 		return "";

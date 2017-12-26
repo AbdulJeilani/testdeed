@@ -1,13 +1,17 @@
 package com.heapbrain.core.testdeed.utility;
 
-import java.io.IOException;
+import javax.validation.ValidationException;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestDeedSupportUtil {
 
+	@Autowired
+	TestDeedUtility testDeedUtility;
+	
 	public static boolean isValidJSON(String json) {
 		boolean valid = false;
 		try {
@@ -16,12 +20,10 @@ public class TestDeedSupportUtil {
 			while (parser.nextToken() != null) {
 			}
 			valid = true;
-		} catch (JsonParseException jpe) {
-			jpe.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
+		} catch (Exception jpe) {
+			throw new ValidationException();
 		}
-
 		return valid;
 	}
+	
 }

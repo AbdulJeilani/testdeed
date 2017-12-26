@@ -9,8 +9,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +42,6 @@ import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.GatlingConfiguration;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
-import com.heapbrain.core.testdeed.utility.TestDeedSupportUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 import io.gatling.app.Gatling;
@@ -129,17 +131,8 @@ public class TestDeedController {
 
 				if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
 					byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
-					String path = System.getProperty("user.dir")+"/target/classes/feeder.json";
-					String[] configurations = new String(bytes).split("#values#");
-					serviceMethodObject.setFeederRuleObj(configurations[0]);
-					if(!TestDeedSupportUtil.isValidJSON(configurations[1])) {
-						return testDeedUtility.getErrorResponse("Gatling configuration error : Feeder JSON not valid format"); 
-					}
-					FileUtils.touch(new File(path));
-					BufferedOutputStream stream = new BufferedOutputStream(
-	                        new FileOutputStream(new File(path)));
-					stream.write(configurations[1].getBytes(Charset.forName("UTF-8")));
-	                stream.close();
+					String configurations = new String(bytes);
+			    		serviceMethodObject.setFeederRuleObj(Arrays.asList(configurations.split("~:~")));
 				}
 				
 				if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
@@ -198,21 +191,26 @@ public class TestDeedController {
 		Gatling.fromMap(props.build());
 		TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
 		String response = singleReport.generateReportFromGatling();
+		
 		return response;
 	}
 
 	private String frameURL(String inputURL, HttpServletRequest request) {
-		Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
-		if(!"".equals(request.getParameter("updatedURL"))) {
-			inputURL =  inputURL + request.getParameter("updatedURL");
-		}
-		Matcher m = MY_PATTERN.matcher(inputURL);
-		while(m.find()) {
-			if(null != request.getParameter(m.group(2))) {
-				inputURL = inputURL.replace("{"+m.group(2)+"}", request.getParameter(m.group(2)));
+		try {
+			Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
+			if(!"".equals(request.getParameter("updatedURL"))) {
+				inputURL =  inputURL + request.getParameter("updatedURL");
 			}
+			Matcher m = MY_PATTERN.matcher(inputURL);
+			while(m.find()) {
+				if(null != request.getParameter(m.group(2))) {
+					inputURL = inputURL.replace("{"+m.group(2)+"}", URLEncoder.encode(request.getParameter(m.group(2)), "UTF-8"));
+				}
+			}
+			return inputURL;
+		} catch(UnsupportedEncodingException uee) {
+			throw new TestDeedValidationException("Validation Error : your service input not supported");
 		}
-		return inputURL;
 	}
 
 	private String isEmpty(String field, String requestParameter) {

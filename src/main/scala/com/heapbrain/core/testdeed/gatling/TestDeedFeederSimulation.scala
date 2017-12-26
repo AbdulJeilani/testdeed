@@ -7,7 +7,7 @@ import scala.concurrent.duration._
 
 class TestDeedFeederSimulation extends Simulation {
 	val httpConf = http.baseURL(Environment.baseURL).acceptHeader(
-			TestDeedController.serviceMethodObject.getAcceptHeader()).disableWarmUp
+			TestDeedController.serviceMethodObject.getAcceptHeader())
 			var testDeedScenario =  new TestDeedFeederScenario()
 
 			var maxResponseTime = scala.util.Properties.envOrElse("maxResponseTime", 
