@@ -1,5 +1,9 @@
 package com.heapbrain.core.testdeed.executor;
 
+/**
+ * @author AbdulJeilani
+ */
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,7 +13,6 @@ import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 
 @RestController
 public class TestDeedErrorHandler implements ErrorController {
@@ -33,5 +36,4 @@ public class TestDeedErrorHandler implements ErrorController {
     public String getErrorPath() {
         return PATH;
     }
-
 }
