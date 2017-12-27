@@ -7,4 +7,8 @@ public class TestDeedValidationException extends RuntimeException {
 	public TestDeedValidationException(String errorMessage) {
         super(errorMessage);
     }
+	
+	public TestDeedValidationException(String errorMessage, Exception e) {
+        super(errorMessage, e);
+    }
 }

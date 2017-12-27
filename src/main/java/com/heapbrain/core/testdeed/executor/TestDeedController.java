@@ -13,7 +13,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.common.Constant;
 import com.heapbrain.core.testdeed.engine.TestDeedReportGenerateEngine;
@@ -42,6 +45,7 @@ import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.GatlingConfiguration;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
+import com.heapbrain.core.testdeed.utility.TestDeedSupportUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 import io.gatling.app.Gatling;
@@ -99,7 +103,7 @@ public class TestDeedController {
 			return testDeedServiceGenerateEngine.generateHomePage(applicationInfo)
 					.replace("~controllerClasses~", controllerClasses.toString().replaceAll("\\[|\\]", ""));
 		} else {
-			return testDeedUtility.getErrorResponse("No controller or TestDeed config not found in application.");
+			throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" testdeed.properties configuration file missing.");
 		}
 	}
 
@@ -131,8 +135,15 @@ public class TestDeedController {
 
 				if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
 					byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
-					String configurations = new String(bytes);
-			    		serviceMethodObject.setFeederRuleObj(Arrays.asList(configurations.split("~:~")));
+					String feederInputJson = new String(bytes);
+					String isValid = TestDeedSupportUtil.isValidJSON(feederInputJson);
+					if(!isValid.equals("yes")) {
+						return isValid; 
+					}
+					ObjectMapper mapper = new ObjectMapper();
+					JsonParser jsonParser = new JsonFactory().createParser(feederInputJson);
+					ArrayNode json = mapper.readTree(jsonParser);
+					serviceMethodObject.setFeederRuleObj(json);
 				}
 				
 				if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
@@ -182,17 +193,21 @@ public class TestDeedController {
 			props.resultsDirectory(reportPath);
 			return syncRunner(props);
 		} catch (Exception e) {
-			return testDeedUtility.getErrorResponse("Gatling configuration error : "+e.getMessage());
+			throw new TestDeedValidationException("Gatling configuration error " + e.getMessage(), e);
 		}
 	}
 
-	private String syncRunner(GatlingPropertiesBuilder props) throws IOException {
+	private String syncRunner(GatlingPropertiesBuilder props) {
+		try {
 		FileUtils.deleteDirectory(new File(reportPath));
 		Gatling.fromMap(props.build());
 		TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
 		String response = singleReport.generateReportFromGatling();
 		
 		return response;
+		} catch(Exception e) {
+			throw new TestDeedValidationException(TestDeedSupportUtil.getErrorResponse("Gatling configuration error ",e.getMessage(),e.getStackTrace()));
+		}
 	}
 
 	private String frameURL(String inputURL, HttpServletRequest request) {
@@ -209,7 +224,7 @@ public class TestDeedController {
 			}
 			return inputURL;
 		} catch(UnsupportedEncodingException uee) {
-			throw new TestDeedValidationException("Validation Error : your service input not supported");
+			throw new TestDeedValidationException("Validation Error : your service input not supported",uee);
 		}
 	}
 
@@ -247,7 +262,7 @@ public class TestDeedController {
 							+"."+f.getName());
 				}
 			} catch (Exception e) {
-				throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" User defined simulation class does not exist ");
+				throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" User defined simulation class does not exist ",e);
 			}
 		});
 		return returnValue.toString().replace("package ","").replace(".scala", "");

@@ -42,7 +42,7 @@ public class TestDeedApp {
 			}
 			in.close();
 		}  catch (IOException | NullPointerException e) {
-			throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" testdeed.properties configuration file missing.");
+			throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" testdeed.properties configuration file missing.", e);
 		}
 		TestDeedController.serverHosts = listOfServers;	
 		TestDeedController.reportPath = System.getProperty("user.dir")+"/target/performance/reports";

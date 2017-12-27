@@ -26,7 +26,9 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.heapbrain.core.testdeed.common.Constant;
 import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
+import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 
 public class TestDeedConverter {
 
@@ -181,7 +183,7 @@ public class TestDeedConverter {
 				return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 			}
 		} catch (Exception e) {
-			testDeedUtility.getErrorResponse("TestDeed error : Unable to convert object to JSON/XML"+e.getMessage());
+			throw new TestDeedValidationException("TestDeed error : Unable to sample JSON object", e);
 		}
 
 		return "";

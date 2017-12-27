@@ -1,9 +1,9 @@
 package com.heapbrain.core.testdeed.to;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
  * @author AbdulJeilani
@@ -18,16 +18,17 @@ public class ServiceMethodObject {
 	String acceptHeader="";
 	String requestBody="";
 	Map<String, String> headerObj = new HashMap<String, String>();
-	List<String> feederRuleObj = new ArrayList<>();
+	ArrayNode feederRuleObj;
+	
+	public ArrayNode getFeederRuleObj() {
+		return feederRuleObj;
+	}
+	public void setFeederRuleObj(ArrayNode feederRuleObj) {
+		this.feederRuleObj = feederRuleObj;
+	}
 	String multiPart1 = "";
 	String multiPart2 = "";
 	
-	public List<String> getFeederRuleObj() {
-		return feederRuleObj;
-	}
-	public void setFeederRuleObj(List<String> feederRuleObj) {
-		this.feederRuleObj = feederRuleObj;
-	}
 	public String getMultiPart1() {
 		return multiPart1;
 	}

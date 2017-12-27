@@ -1,18 +1,15 @@
 package com.heapbrain.core.testdeed.utility;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -187,12 +184,4 @@ public class TestDeedUtility {
 		return classLoader.getResourceAsStream(fileName);
 	}
 
-	public String getErrorResponse(String errorDescription) {
-		try {
-			return IOUtils.toString(getHtmlFile("testdeedexception.html"), 
-					Charset.forName("UTF-8")).replace("~testdeedexception~", errorDescription);
-		} catch (IOException e) {
-			return "Unavailable error response";
-		}
-	}
 }

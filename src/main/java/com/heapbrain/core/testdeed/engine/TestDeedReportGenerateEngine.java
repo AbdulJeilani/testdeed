@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.heapbrain.core.testdeed.utility.TestDeedSupportUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 public class TestDeedReportGenerateEngine {
@@ -28,7 +29,7 @@ public class TestDeedReportGenerateEngine {
 				jsStringLoader.append("</script>");
 			} catch (IOException e) {
 				jsStringLoader.setLength(0);
-				jsStringLoader.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
+				jsStringLoader.append(new StringBuilder(TestDeedSupportUtil.getErrorResponse("Gatling report generation error",e.getMessage(), e.getStackTrace())));
 			}
 		});
 		return jsStringLoader.toString();
@@ -77,7 +78,7 @@ public class TestDeedReportGenerateEngine {
 				styleStringLoader.append(FileUtils.readFileToString(f,Charset.forName("UTF-8")));
 			} catch (IOException e) {
 				styleStringLoader.setLength(0);
-				styleStringLoader.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
+				styleStringLoader.append(new StringBuilder(TestDeedSupportUtil.getErrorResponse("Gatling report generation error",e.getMessage(), e.getStackTrace())));
 			}
 		});
 		styleStringLoader.append("</style>");
@@ -94,7 +95,7 @@ public class TestDeedReportGenerateEngine {
 				}
 			} catch (IOException e) {
 				htmlStringLoader.setLength(0);
-				htmlStringLoader.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
+				htmlStringLoader.append(new StringBuilder(TestDeedSupportUtil.getErrorResponse("Gatling report generation error",e.getMessage(), e.getStackTrace())));
 			}
 		});
 
@@ -117,7 +118,8 @@ public class TestDeedReportGenerateEngine {
 				}
 			} catch (IOException e) {
 				detailedReport.setLength(0);
-				detailedReport.append(new StringBuilder(testDeedUtility.getErrorResponse("Gatling report generation error")));
+				detailedReport.append(new StringBuilder(TestDeedSupportUtil.getErrorResponse("Gatling report generation error",e.getMessage(), 
+						e.getStackTrace())));
 			}
 		});
 		detailedReport.append("</div></div><div class=\"content-in\">");
