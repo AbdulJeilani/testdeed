@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.heapbrain.core.testdeed.common.Constant;
 import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
 import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 
