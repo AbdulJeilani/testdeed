@@ -188,4 +188,8 @@
 		<url>http://www.heapbrain.com</url>
 	</organization>
 	<description>Easy configurable performance test with Gatling (Run anywhere)</description>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/AbdulJeilani/testdeed/issues</url>
+	</issueManagement>
 </project>
