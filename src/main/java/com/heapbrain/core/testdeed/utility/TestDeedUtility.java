@@ -7,13 +7,13 @@ package com.heapbrain.core.testdeed.utility;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +29,10 @@ import com.heapbrain.core.testdeed.executor.TestDeedController;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.Service;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
+import com.thoughtworks.paranamer.AnnotationParanamer;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.CachingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -87,26 +91,24 @@ public class TestDeedUtility {
 				List<String> requestParam = new ArrayList<>();
 				List<String> headerParam = new ArrayList<>();
 				int parameterCount = 0;
+				Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
 				for(Annotation[] annotation_params : annotations_params) {
 					for(Annotation annotation_param : annotation_params) {
 						if(annotation_param.annotationType().equals(PathVariable.class)) {
-							if(!"".equals(((PathVariable) annotation_param).value())) {
-								pathVariableList.add(getGenericType(method, method.getParameterTypes()[parameterCount].getSimpleName())+"~"
-										+((PathVariable) annotation_param).value());
-								parameterCount++;
-							}
+							requestParam.add(getGenericType(
+									method.getParameters()[parameterCount].toString().split(" ")[0]
+									+" "+info.lookupParameterNames(method)[parameterCount]));
+							parameterCount++;
 						} else if(annotation_param.annotationType().equals(RequestParam.class)) {
-							if(!"".equals(((RequestParam) annotation_param).value())) {
-								requestParam.add(getGenericType(method, method.getParameterTypes()[parameterCount].getSimpleName())+"~"
-										+((RequestParam) annotation_param).value());
-								parameterCount++;
-							}
+							requestParam.add(getGenericType(
+									method.getParameters()[parameterCount].toString().split(" ")[0]
+									+" "+info.lookupParameterNames(method)[parameterCount]));
+							parameterCount++;
 						} else if(annotation_param.annotationType().equals(RequestHeader.class)) {
-							if(!"".equals(((RequestHeader) annotation_param).value())) {
-								headerParam.add(getGenericType(method, method.getParameterTypes()[parameterCount].getSimpleName())+"~"
-										+((RequestHeader) annotation_param).value());
-								parameterCount++;
-							}
+							headerParam.add(getGenericType(
+									method.getParameters()[parameterCount].toString().split(" ")[0]
+									+" "+info.lookupParameterNames(method)[parameterCount]));
+							parameterCount++;
 						} else if(annotation_param.annotationType().equals(RequestBody.class)) {
 							parameters.put("RequestBody", TestDeedConverter.getClassObject(method.getParameterTypes()[parameterCount].getName()));
 							parameterCount++;
@@ -165,24 +167,26 @@ public class TestDeedUtility {
 			} else {
 				contentType.append("<option value=\""+content+"\"><font color=\"#39495c\">"+content+"</font></option>");
 			}
-
 		}
 		contentType.append("</select></p>");
 
 		return contentType.toString();
 	}
 
-	private String getGenericType(Method method, String variableName) {
-		if(TestDeedConverter.collectionClass.contains(variableName)) {
-			Type returnType = method.getGenericReturnType();
-			if(null != returnType) {
-				Class<?> typeArgClass = (Class<?>) returnType;
-				variableName += "&lt;"+typeArgClass.getSimpleName()+"&gt;";
-			}
+	private String getGenericType(String generateValues) {
+		String result = "";
+		String[] generateValue = generateValues.split(" ");
+		if(generateValue[0].contains("<")) {
+			String[] dataTypes = generateValue[0].split("<");
+			result = dataTypes[0].substring(dataTypes[0].lastIndexOf(".")+1, dataTypes[0].length())+"<";
+			result += dataTypes[1].substring(dataTypes[1].lastIndexOf(".")+1, dataTypes[1].indexOf(">"))+">";
+		} else {
+			result = generateValue[0].substring(generateValue[0].lastIndexOf(".")+1, generateValue[0].length());
 		}
-		return variableName;
+		result += "~"+generateValue[1];
+		return StringEscapeUtils.escapeXml(result);
 	}
-	
+
 	public InputStream getHtmlFile(String fileName) {
 		ClassLoader classLoader = TestDeedUtility.class.getClassLoader();
 		return classLoader.getResourceAsStream(fileName);

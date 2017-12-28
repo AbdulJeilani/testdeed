@@ -100,7 +100,6 @@ class TestDeedScenario {
 			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 					.get(TestDeedController.serviceMethodObject.getExecuteService())
-					.headers(scalaHeader)
 					.check(status is TestDeedController.gatlingConfiguration.getStatus())
 
 					httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName()) 

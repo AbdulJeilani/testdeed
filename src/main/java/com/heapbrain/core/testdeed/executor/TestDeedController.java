@@ -125,10 +125,10 @@ public class TestDeedController {
 	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
 		try {
 			String[] requestMethod = request.getParameter("executeService").split("~");
-			
+
 			Part bodyFeeder = request.getPart("bodyFeeder");
 			Part multipartfile = request.getPart("multipartfile");
-			
+
 			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
 				serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
 				serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
@@ -149,27 +149,25 @@ public class TestDeedController {
 					ArrayNode json = mapper.readTree(jsonParser);
 					serviceMethodObject.setFeederRuleObj(json);
 				}
-				
+
 				if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
 					byte[] bytes = IOUtils.toByteArray(multipartfile.getInputStream());
 					String path = System.getProperty("user.dir")+"/target/performance/upload/"+multipartfile.getSubmittedFileName();
 					FileUtils.touch(new File(path));
 					BufferedOutputStream stream = new BufferedOutputStream(
-	                        new FileOutputStream(new File(path)));
+							new FileOutputStream(new File(path)));
 					stream.write(bytes);
-	                stream.close();
+					stream.close();
 					serviceMethodObject.setMultiPart1(request.getParameter("multipartfile_object"));
 					serviceMethodObject.setMultiPart2(path);
 				}
-				
+
 				Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
 				headerObj.put("Content-Type", request.getParameter("serviceConsume"));
 
 				if(null != request.getParameter("requestHeader")) {
-					String[] allHeaders = (request.getParameter("requestHeader").replaceAll("\\[|\\]", "")).split(",");
-					for(String header : allHeaders) {
-						headerObj.put(header, request.getParameter(header));
-					}
+					String header = (request.getParameter("requestHeader").replaceAll("\\[|\\]", ""));
+					headerObj.put(header, request.getParameter(header));
 				}
 				serviceMethodObject.setHeaderObj(headerObj);
 
@@ -203,12 +201,12 @@ public class TestDeedController {
 
 	private String syncRunner(GatlingPropertiesBuilder props) {
 		try {
-		FileUtils.deleteDirectory(new File(reportPath));
-		Gatling.fromMap(props.build());
-		TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
-		String response = singleReport.generateReportFromGatling();
-		
-		return response;
+			FileUtils.deleteDirectory(new File(reportPath));
+			Gatling.fromMap(props.build());
+			TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
+			String response = singleReport.generateReportFromGatling();
+
+			return response;
 		} catch(Exception e) {
 			throw new TestDeedValidationException(TestDeedSupportUtil.getErrorResponse("Gatling configuration error ",e.getMessage(),e.getStackTrace()));
 		}
