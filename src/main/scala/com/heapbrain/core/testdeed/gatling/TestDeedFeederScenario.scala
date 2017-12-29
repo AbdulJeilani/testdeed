@@ -6,6 +6,7 @@ import com.heapbrain.core.testdeed.executor.TestDeedController
 import scala.collection.JavaConverters._
 import scala.collection.Map
 import scala.util.Random
+import com.fasterxml.jackson.databind.JsonNode
 
 class TestDeedFeederScenario { 
 
@@ -16,11 +17,24 @@ class TestDeedFeederScenario {
 			println("Service Name : "+TestDeedController.serviceMethodObject.getServiceName())
 			println("RequestBody : "+TestDeedController.serviceMethodObject.getRequestBody())
 			println("ExecuteService : " + TestDeedController.serviceMethodObject.getExecuteService())
-			val listOfInputs = (TestDeedController.serviceMethodObject.getFeederRuleObj()).asScala.toList
-			println("Feeder Config : "+listOfInputs)
-			def pickRandomInput() = {
-					listOfInputs(Random.nextInt(listOfInputs.size))
-	}
+			var listOfInputs = List[JsonNode]()
+			var listOfInputsXml = List[String]()
+
+			if( null != TestDeedController.serviceMethodObject.getFeederRuleObj()) {
+				listOfInputs = (TestDeedController.serviceMethodObject.getFeederRuleObj()).asScala.toList
+			} else {
+				listOfInputsXml = (TestDeedController.serviceMethodObject.getFeederRuleXMLObj()).asScala.toList
+			}
+
+      	println("Feeder Config (JSON): "+listOfInputs)
+      	println("Feeder Config (XML): "+listOfInputsXml)    
+      
+      	def pickRandomInput() = {
+      			listOfInputs(Random.nextInt(listOfInputs.size))
+      	}   
+      	def pickRandomInputXML() = {
+      			listOfInputsXml(Random.nextInt(listOfInputsXml.size))
+      	}
 
 	if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
 		var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
@@ -35,7 +49,7 @@ class TestDeedFeederScenario {
 							+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 							.post(TestDeedController.serviceMethodObject.getExecuteService())
 							.headers(scalaHeader)
-							.body(StringBody(session => s"""${pickRandomInput()}""")).asXML
+							.body(StringBody(session => s"""${pickRandomInputXML()}""")).asXML
 							.check(status is TestDeedController.gatlingConfiguration.getStatus())
 				}
 
@@ -68,7 +82,7 @@ class TestDeedFeederScenario {
 							+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 							.put(TestDeedController.serviceMethodObject.getExecuteService())
 							.headers(scalaHeader)
-							.body(StringBody(session => s"""${pickRandomInput()}""")).asXML
+							.body(StringBody(session => s"""${pickRandomInputXML()}""")).asXML
 							.check(status is TestDeedController.gatlingConfiguration.getStatus())
 				}
 

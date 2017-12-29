@@ -13,8 +13,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,7 +38,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.annotations.TestDeedApplication;
 import com.heapbrain.core.testdeed.engine.TestDeedReportGenerateEngine;
 import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
@@ -49,6 +45,7 @@ import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.GatlingConfiguration;
 import com.heapbrain.core.testdeed.to.ServiceMethodObject;
+import com.heapbrain.core.testdeed.utility.TestDeedControllerUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedSupportUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
@@ -82,7 +79,7 @@ public class TestDeedController {
 		ClassPathScanningCandidateComponentProvider scanner =
 				new ClassPathScanningCandidateComponentProvider(true);
 
-		simulationClass = loadUserDefinedSimulationClass();
+		simulationClass = TestDeedControllerUtil.loadUserDefinedSimulationClass();
 
 		ApplicationInfo applicationInfo = new ApplicationInfo();
 		String currentUrl = request.getScheme()+"://"+request.getServerName();
@@ -94,7 +91,7 @@ public class TestDeedController {
 		boolean isControllerPresent = false;
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
 			Class<?> cl = Class.forName(bd.getBeanClassName());
-			if(isTestDeedConfigClass(cl)) {
+			if(TestDeedControllerUtil.isTestDeedConfigClass(cl)) {
 				testDeedUtility.loadClassConfig(cl, applicationInfo);
 				testDeedUtility.loadMethodConfig(cl, applicationInfo);
 				if(null == cl.getDeclaredAnnotation(SpringBootApplication.class)) {
@@ -118,16 +115,6 @@ public class TestDeedController {
 		}
 	}
 
-	private boolean isTestDeedConfigClass(Class<?> classInput) {
-		if(null != classInput.getDeclaredAnnotation(Controller.class) || 
-				null != classInput.getDeclaredAnnotation(RestController.class) || 
-				null != classInput.getDeclaredAnnotation(SpringBootApplication.class) || 
-				null != classInput.getDeclaredAnnotation(TestDeedApi.class)) {
-			return true;
-		}
-		return false;
-	}
-
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
 	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
 		try {
@@ -143,22 +130,32 @@ public class TestDeedController {
 				if(null != serviceMethodObjectMap.get(requestMethod[0])) {
 					serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
 					serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
-					serviceMethodObject.setExecuteService(frameURL(requestMethod[0], request));
+					serviceMethodObject.setExecuteService(TestDeedControllerUtil.frameURL(requestMethod[0], request));
 					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
 					serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 					serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
 
 					if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
 						byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
-						String feederInputJson = new String(bytes);
-						String isValid = TestDeedSupportUtil.isValidJSON(feederInputJson);
-						if(!isValid.equals("yes")) {
-							return isValid; 
+						String feederInput = new String(bytes);
+						if(serviceMethodObject.getAcceptHeader().equals("application/json")) {
+							String isValid = TestDeedSupportUtil.isValidJSON(feederInput);
+							if(!isValid.equals("yes")) {
+								return isValid; 
+							}
+							ObjectMapper mapper = new ObjectMapper();
+							JsonParser jsonParser = new JsonFactory().createParser(feederInput);
+							ArrayNode json = mapper.readTree(jsonParser);
+							serviceMethodObject.setFeederRuleObj(json);
+						} else if(serviceMethodObject.getAcceptHeader().equals("application/xml")){
+							Pattern pattern = Pattern.compile("\\{([^\\}]+)\\}*");
+							Matcher matcher = pattern.matcher(feederInput);
+							List<String> feederInputXml = new ArrayList<>();
+							while(matcher.find()) {
+								feederInputXml.add(matcher.group(1));
+							}
+							serviceMethodObject.setFeederRuleXMLObj(feederInputXml);
 						}
-						ObjectMapper mapper = new ObjectMapper();
-						JsonParser jsonParser = new JsonFactory().createParser(feederInputJson);
-						ArrayNode json = mapper.readTree(jsonParser);
-						serviceMethodObject.setFeederRuleObj(json);
 					}
 
 					if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
@@ -221,62 +218,19 @@ public class TestDeedController {
 		}
 	}
 
-	private String frameURL(String inputURL, HttpServletRequest request) {
-		try {
-			Pattern MY_PATTERN = Pattern.compile("(\\{)(.*?)(\\})");
-			if(!"".equals(request.getParameter("updatedURL"))) {
-				inputURL =  inputURL + request.getParameter("updatedURL");
-			}
-			Matcher m = MY_PATTERN.matcher(inputURL);
-			while(m.find()) {
-				if(null != request.getParameter(m.group(2))) {
-					inputURL = inputURL.replace("{"+m.group(2)+"}", URLEncoder.encode(request.getParameter(m.group(2)), "UTF-8"));
-				}
-			}
-			return inputURL;
-		} catch(UnsupportedEncodingException uee) {
-			throw new TestDeedValidationException("Validation Error : your service input not supported",uee);
-		}
-	}
-
-	private String isEmpty(String field, String requestParameter) {
-		if(requestParameter.equals("")) {
-			return "0";
-		} else {
-			return requestParameter;
-		}
-	}
-
 	private void loadGatlingUserConfiguration(HttpServletRequest request) {
-		gatlingConfiguration.setConstantUsersPerSec(new Double(isEmpty("constantUsersPerSec",request.getParameter("constantUsersPerSec"))));
-		gatlingConfiguration.setDuration(isEmpty("duration",request.getParameter("duration")+" "+request.getParameter("duration_select")));
-		gatlingConfiguration.setMaxDuration(isEmpty("maxDuration",request.getParameter("maxDuration")+" "+request.getParameter("maxDuration_select")));
-		gatlingConfiguration.setAtOnceUsers(Integer.parseInt(isEmpty("atOnceUsers",request.getParameter("atOnceUsers"))));
-		gatlingConfiguration.setRampUser(Integer.parseInt(isEmpty("rampUser",request.getParameter("rampUser"))));
-		gatlingConfiguration.setRampUserOver(isEmpty("rampUserOver",request.getParameter("rampUserOver"))+" "+isEmpty("rampUserOver_select",request.getParameter("rampUserOver_select")));
-		gatlingConfiguration.setRampUsersPerSec(new Double(isEmpty("rampUsersPerSec",request.getParameter("rampUsersPerSec"))));
-		gatlingConfiguration.setRampUsersPerSecTo(new Double(isEmpty("rampUsersPerSecTo",request.getParameter("rampUsersPerSecTo"))));
-		gatlingConfiguration.setRampUsersPerSecDuring(isEmpty("rampUsersPerSecDuring",request.getParameter("rampUsersPerSecDuring"))+" "+isEmpty("rampUsersPerSecDuring_select",request.getParameter("rampUsersPerSecDuring_select")));
-		gatlingConfiguration.setNothingFor(isEmpty("nothingFor",request.getParameter("nothingFor")+" "+request.getParameter("nothingFor_select")));
-		gatlingConfiguration.setStatus(Integer.parseInt(isEmpty("status",request.getParameter("status"))));
-		gatlingConfiguration.setMaxResponseTime(isEmpty("maxResponseTime",request.getParameter("maxResponseTime")));
-	}
-
-	private String loadUserDefinedSimulationClass() {
-		final String[] SUFFIX = {"scala"};
-		StringBuilder returnValue=new StringBuilder();
-		FileUtils.listFiles(new File(System.getProperty("user.dir")+"/src"), SUFFIX, true).stream().forEach(f -> {
-			try {
-				String fileContent = FileUtils.readFileToString(f,Charset.forName("UTF-8"));
-				if(fileContent.contains(" extends Simulation")) {
-					returnValue.append(fileContent.substring(fileContent.indexOf("package "), fileContent.indexOf("\n"))
-							+"."+f.getName());
-				}
-			} catch (Exception e) {
-				throw new TestDeedValidationException("Configuration Error : User defined simulation class does not exist ",e);
-			}
-		});
-		return returnValue.toString().replace("package ","").replace(".scala", "");
+		gatlingConfiguration.setConstantUsersPerSec(new Double(TestDeedControllerUtil.isEmpty("constantUsersPerSec",request.getParameter("constantUsersPerSec"))));
+		gatlingConfiguration.setDuration(TestDeedControllerUtil.isEmpty("duration",request.getParameter("duration")+" "+request.getParameter("duration_select")));
+		gatlingConfiguration.setMaxDuration(TestDeedControllerUtil.isEmpty("maxDuration",request.getParameter("maxDuration")+" "+request.getParameter("maxDuration_select")));
+		gatlingConfiguration.setAtOnceUsers(Integer.parseInt(TestDeedControllerUtil.isEmpty("atOnceUsers",request.getParameter("atOnceUsers"))));
+		gatlingConfiguration.setRampUser(Integer.parseInt(TestDeedControllerUtil.isEmpty("rampUser",request.getParameter("rampUser"))));
+		gatlingConfiguration.setRampUserOver(TestDeedControllerUtil.isEmpty("rampUserOver",request.getParameter("rampUserOver"))+" "+TestDeedControllerUtil.isEmpty("rampUserOver_select",request.getParameter("rampUserOver_select")));
+		gatlingConfiguration.setRampUsersPerSec(new Double(TestDeedControllerUtil.isEmpty("rampUsersPerSec",request.getParameter("rampUsersPerSec"))));
+		gatlingConfiguration.setRampUsersPerSecTo(new Double(TestDeedControllerUtil.isEmpty("rampUsersPerSecTo",request.getParameter("rampUsersPerSecTo"))));
+		gatlingConfiguration.setRampUsersPerSecDuring(TestDeedControllerUtil.isEmpty("rampUsersPerSecDuring",request.getParameter("rampUsersPerSecDuring"))+" "+TestDeedControllerUtil.isEmpty("rampUsersPerSecDuring_select",request.getParameter("rampUsersPerSecDuring_select")));
+		gatlingConfiguration.setNothingFor(TestDeedControllerUtil.isEmpty("nothingFor",request.getParameter("nothingFor")+" "+request.getParameter("nothingFor_select")));
+		gatlingConfiguration.setStatus(Integer.parseInt(TestDeedControllerUtil.isEmpty("status",request.getParameter("status"))));
+		gatlingConfiguration.setMaxResponseTime(TestDeedControllerUtil.isEmpty("maxResponseTime",request.getParameter("maxResponseTime")));
 	}
 
 }

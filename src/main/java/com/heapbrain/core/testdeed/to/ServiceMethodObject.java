@@ -1,6 +1,8 @@
 package com.heapbrain.core.testdeed.to;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -19,7 +21,14 @@ public class ServiceMethodObject {
 	String requestBody="";
 	Map<String, String> headerObj = new HashMap<String, String>();
 	ArrayNode feederRuleObj;
+	List<String> feederRuleXMLObj = new ArrayList<>();
 	
+	public List<String> getFeederRuleXMLObj() {
+		return feederRuleXMLObj;
+	}
+	public void setFeederRuleXMLObj(List<String> feederRuleXMLObj) {
+		this.feederRuleXMLObj = feederRuleXMLObj;
+	}
 	public ArrayNode getFeederRuleObj() {
 		return feederRuleObj;
 	}

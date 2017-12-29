@@ -24,10 +24,11 @@ class TestDeedScenario {
 	var httpTestDeedLookup = scenario(""); 
 	var scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
 
-			println("Method : "+TestDeedController.serviceMethodObject.getMethod());
+	println("Method : "+TestDeedController.serviceMethodObject.getMethod());
 	println("Service Name : "+TestDeedController.serviceMethodObject.getServiceName());
 	println("RequestBody : "+TestDeedController.serviceMethodObject.getRequestBody());
 	println("ExecuteService : " + TestDeedController.serviceMethodObject.getExecuteService())
+	println("Header : " + scalaHeader)
 
 	try {
 		if((TestDeedController.serviceMethodObject.getMethod())=="POST"){

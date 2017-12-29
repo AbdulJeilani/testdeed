@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
 import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
@@ -173,7 +174,9 @@ public class TestDeedConverter {
 			}
 
 			if(consumes.endsWith("xml") && !object.equals("")) {
-				XmlMapper mapper = new XmlMapper();
+				JacksonXmlModule xmlModule = new JacksonXmlModule();
+				xmlModule.setDefaultUseWrapper(false);
+				ObjectMapper mapper = new XmlMapper(xmlModule);
 				mapper.enable(SerializationFeature.INDENT_OUTPUT);
 				return mapper.writeValueAsString(object);
 			} else if(!object.equals("")){

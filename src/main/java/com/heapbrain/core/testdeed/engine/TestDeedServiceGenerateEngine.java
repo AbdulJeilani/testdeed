@@ -16,6 +16,8 @@ import com.heapbrain.core.testdeed.executor.TestDeedController;
 import com.heapbrain.core.testdeed.to.ApplicationInfo;
 import com.heapbrain.core.testdeed.to.Service;
 import com.heapbrain.core.testdeed.utility.TestDeedConverter;
+import com.heapbrain.core.testdeed.utility.TestDeedServiceUtil;
+import com.heapbrain.core.testdeed.utility.TestDeedSupportUtil;
 import com.heapbrain.core.testdeed.utility.TestDeedUtility;
 
 @Component
@@ -23,6 +25,7 @@ public class TestDeedServiceGenerateEngine {
 
 	@Autowired
 	TestDeedUtility testDeedUtility;
+	
 	public static String updatedURL = "";
 	TestDeedConverter testDeedConverter = new TestDeedConverter();
 
@@ -31,9 +34,9 @@ public class TestDeedServiceGenerateEngine {
 			String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("index.html"), 
 					Charset.forName("UTF-8"));
 			htmlString = htmlString.replace("~application.name~", applicationInfo.getApplicationName());
-			htmlString = htmlString.replace("~addshowhidescript~", loadShowHideScript(applicationInfo.getServices()));
+			htmlString = htmlString.replace("~addshowhidescript~", TestDeedSupportUtil.loadShowHideScript(applicationInfo.getServices()));
 			htmlString = htmlString.replace("~servicedetails~", loadServiceDetails(applicationInfo.getMapping(), applicationInfo.getServices()));
-			htmlString = htmlString.replaceAll("~listofservers~", loadHostDetails(applicationInfo.getServerLocalUrl()));
+			htmlString = htmlString.replaceAll("~listofservers~", TestDeedServiceUtil.loadHostDetails(applicationInfo.getServerLocalUrl()));
 			String userDefined = "";
 			if(TestDeedController.simulationClass.equals("")) {
 				userDefined = "<select style=\"width:300px;\" id=\"simulationclass\" name=\"simulationclass\"><option value=\"\"></option></select>";
@@ -61,32 +64,6 @@ public class TestDeedServiceGenerateEngine {
 		}
 	}
 
-	private String loadShowHideScript(Map<String, Service> services) {
-		String script = "<script language=\"javascript\">";
-		int serviceCount=0;
-		StringBuilder hideAllService = new StringBuilder();
-		StringBuilder showAllService = new StringBuilder();
-		for(Map.Entry<String, Service> entry : services.entrySet()) {
-			script += "function showServices"+serviceCount+"() {";
-			String variable = "x"+(serviceCount);
-			script += "var "+variable+" = document.getElementById(\""+entry.getKey()+"_divshowhide\");";
-			script += "if ("+variable+".style.display == \"none\") {";
-			script += variable+".style.display = \"block\";";
-			script += "} else {";
-			script += variable+".style.display = \"none\";";
-			script += "}}";
-			serviceCount++;
-			hideAllService.append("document.getElementById(\""+entry.getKey()+"_divshowhide\").style.display = \"none\";");
-			showAllService.append("document.getElementById(\""+entry.getKey()+"_divshowhide\").style.display = \"block\";");
-		}
-		
-		script += "function hideAllService(){"+hideAllService+"}";
-		script += "function showAllService() {"+showAllService+"}";
-		
-		script += "</script>";
-		return script;
-	}
-	
 	private String loadServiceDetails(String baseMap, Map<String, Service> services) throws Exception {
 		String response = "";
 		String temp = "";
@@ -105,11 +82,11 @@ public class TestDeedServiceGenerateEngine {
 				temp = temp.replace("~application.service.name~", service.getServiceName());
 				String consumes="";
 				if(null == service.getConsume()) {
-					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
+					temp = temp.replace("~contenttype_consume~", TestDeedSupportUtil.getContentType(baseMap+service.getRequestMapping(),
 							Arrays.asList("application/xml","application/json","multipart/form-data"),"Consume",false));
 				} else {
 					consumes=service.getConsume().get(0);
-					temp = temp.replace("~contenttype_consume~", testDeedUtility.getContentType(baseMap+service.getRequestMapping(),
+					temp = temp.replace("~contenttype_consume~", TestDeedSupportUtil.getContentType(baseMap+service.getRequestMapping(),
 							service.getConsume(), "Consume",true));
 				}
 
@@ -123,44 +100,12 @@ public class TestDeedServiceGenerateEngine {
 		return response;
 	}
 
-	private String loadHostDetails(String localHost) {
-		StringBuffer loadHostDetails = new StringBuffer();
-		loadHostDetails.append("<select name=\"baseURL\">");
-		loadHostDetails.append("<option value=\""+localHost+"\">"+localHost+"</option>");
-		for(String host : TestDeedController.serverHosts) {
-
-			if(host !=null) {
-				if(host.equals(TestDeedController.prHost) && TestDeedController.isProdEnabled) {
-					loadHostDetails.append("<option value=\""+host+"\">"+host+"</option>");
-				} else if(!host.equals(TestDeedController.prHost)) {
-					loadHostDetails.append("<option value=\""+host+"\">"+host+"</option>");
-				}
-			}
-
-		}
-		loadHostDetails.append("</select>");
-		return loadHostDetails.toString();
-	}
-
 	private String loadParameters(String baseMap, String requestMapping, Map<String, Object> parameters, 
 			String requestMethod, String consumes, String serviceName, String methodName, String methodDescription) throws Exception {
 
-		String parametersDesign = IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
-				Charset.forName("UTF-8")); 
-		parametersDesign = parametersDesign.replace("~id~", requestMapping+"~"+requestMethod+"_divshowhide");
-		parametersDesign = parametersDesign.replace("~application.service.name~", serviceName);
-
-		parametersDesign = parametersDesign.replace("~service.method.name~", methodName);
-		parametersDesign = parametersDesign.replace("~service.description~", methodDescription);
-		
-		if(null != parameters.get("RequestBody")) {
-			Class<?> classTemp = parameters.get("RequestBody").getClass();
-			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
-				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
-			}
-		} else {
-			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
-		}
+		String parametersDesign = TestDeedServiceUtil.loadParameters(IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
+				Charset.forName("UTF-8")), baseMap, requestMapping, parameters, 
+				requestMethod, consumes, serviceName, methodName, methodDescription);
 
 		parametersDesign = parametersDesign.replace("~loadparameter~", 
 				testDeedConverter.getParmeters(baseMap+requestMapping, parameters, consumes, requestMethod));
