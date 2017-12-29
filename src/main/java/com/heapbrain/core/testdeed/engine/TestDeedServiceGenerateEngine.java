@@ -163,7 +163,7 @@ public class TestDeedServiceGenerateEngine {
 		}
 
 		parametersDesign = parametersDesign.replace("~loadparameter~", 
-				testDeedConverter.getParmeters(baseMap+requestMapping, parameters, consumes));
+				testDeedConverter.getParmeters(baseMap+requestMapping, parameters, consumes, requestMethod));
 
 		parametersDesign = parametersDesign.replace("~updatedURL~", updatedURL);
 		updatedURL = "";

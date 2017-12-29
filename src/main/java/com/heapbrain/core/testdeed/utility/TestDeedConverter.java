@@ -57,7 +57,7 @@ public class TestDeedConverter {
 		mapper4variable.put("long", 0l);
 	}
 
-	public String getParmeters(String serviceName, Map<String, Object> params, String consumes) throws Exception {
+	public String getParmeters(String serviceName, Map<String, Object> params, String consumes, String requestMethod) throws Exception {
 		requestAttributes = "";
 		List<String> requestHeader = new ArrayList<String>();
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -115,7 +115,8 @@ public class TestDeedConverter {
 								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
 							}
 							
-							if(collectionClass.contains(param[0].split("&")[0])) {
+							if(collectionClass.contains(param[0].split("&")[0]) &&
+									!requestMethod.equalsIgnoreCase("GET")) {
 								textField = "<textarea style=\"width:240px;\" class=\"text-container\" id=\""
 										+param[1]+"\" name=\""+param[1]+"\"></textarea>";
 							}

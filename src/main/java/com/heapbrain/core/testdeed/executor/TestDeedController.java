@@ -42,7 +42,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.heapbrain.core.testdeed.annotations.TestDeedApi;
-import com.heapbrain.core.testdeed.common.Constant;
+import com.heapbrain.core.testdeed.annotations.TestDeedApplication;
 import com.heapbrain.core.testdeed.engine.TestDeedReportGenerateEngine;
 import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
 import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
@@ -100,6 +100,13 @@ public class TestDeedController {
 				if(null == cl.getDeclaredAnnotation(SpringBootApplication.class)) {
 					controllerClasses.add(cl.getSimpleName());
 				}
+				if(null != cl.getDeclaredAnnotation(SpringBootApplication.class) 
+						&& null == cl.getDeclaredAnnotation(TestDeedApplication.class)) {
+					String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
+							Charset.forName("UTF-8"));
+					return htmlString.replace("~testdeedexception~", "Configuration Error : Testdeed configurations missing in springboot.")
+							.replace("~printstacktrace~", "");
+				}
 				isControllerPresent = true;
 			}
 		}
@@ -107,7 +114,7 @@ public class TestDeedController {
 			return testDeedServiceGenerateEngine.generateHomePage(applicationInfo)
 					.replace("~controllerClasses~", controllerClasses.toString().replaceAll("\\[|\\]", ""));
 		} else {
-			throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" testdeed.properties configuration file missing.");
+			throw new TestDeedValidationException("Configuration Error : Controller configurations missing.");
 		}
 	}
 
@@ -124,73 +131,75 @@ public class TestDeedController {
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
 	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
 		try {
-			String[] requestMethod = request.getParameter("executeService").split("~");
-
-			Part bodyFeeder = request.getPart("bodyFeeder");
-			Part multipartfile = request.getPart("multipartfile");
-
-			if(null != serviceMethodObjectMap.get(requestMethod[0])) {
-				serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
-				serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
-				serviceMethodObject.setExecuteService(frameURL(requestMethod[0], request));
-				serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
-				serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
-				serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
-
-				if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
-					byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
-					String feederInputJson = new String(bytes);
-					String isValid = TestDeedSupportUtil.isValidJSON(feederInputJson);
-					if(!isValid.equals("yes")) {
-						return isValid; 
-					}
-					ObjectMapper mapper = new ObjectMapper();
-					JsonParser jsonParser = new JsonFactory().createParser(feederInputJson);
-					ArrayNode json = mapper.readTree(jsonParser);
-					serviceMethodObject.setFeederRuleObj(json);
-				}
-
-				if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
-					byte[] bytes = IOUtils.toByteArray(multipartfile.getInputStream());
-					String path = System.getProperty("user.dir")+"/target/performance/upload/"+multipartfile.getSubmittedFileName();
-					FileUtils.touch(new File(path));
-					BufferedOutputStream stream = new BufferedOutputStream(
-							new FileOutputStream(new File(path)));
-					stream.write(bytes);
-					stream.close();
-					serviceMethodObject.setMultiPart1(request.getParameter("multipartfile_object"));
-					serviceMethodObject.setMultiPart2(path);
-				}
-
-				Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
-				headerObj.put("Content-Type", request.getParameter("serviceConsume"));
-
-				if(null != request.getParameter("requestHeader")) {
-					String header = (request.getParameter("requestHeader").replaceAll("\\[|\\]", ""));
-					headerObj.put(header, request.getParameter(header));
-				}
-				serviceMethodObject.setHeaderObj(headerObj);
-
-				if(requestMethod[1].equalsIgnoreCase("POST") || 
-						requestMethod[1].equalsIgnoreCase("PUT")) {
-					if(requestMethod.length > 2 && null != requestMethod[2]) {
-						if(!requestMethod[2].startsWith("MultipartFile")) {
-							serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
-						}
-					}
-				}
-			}
-
-			loadGatlingUserConfiguration(request);
-			GatlingPropertiesBuilder props = new GatlingPropertiesBuilder();
 
 			if(!request.getParameter("simulationclass").equals("")) {
 				simulationClass = request.getParameter("simulationclass");
-			} else if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")){
-				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedFeederSimulation";
 			} else {
-				simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedSimulation";
+				String[] requestMethod = request.getParameter("executeService").split("~");
+
+				Part bodyFeeder = request.getPart("bodyFeeder");
+				Part multipartfile = request.getPart("multipartfile");
+
+				if(null != serviceMethodObjectMap.get(requestMethod[0])) {
+					serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
+					serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
+					serviceMethodObject.setExecuteService(frameURL(requestMethod[0], request));
+					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
+					serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
+					serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
+
+					if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
+						byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
+						String feederInputJson = new String(bytes);
+						String isValid = TestDeedSupportUtil.isValidJSON(feederInputJson);
+						if(!isValid.equals("yes")) {
+							return isValid; 
+						}
+						ObjectMapper mapper = new ObjectMapper();
+						JsonParser jsonParser = new JsonFactory().createParser(feederInputJson);
+						ArrayNode json = mapper.readTree(jsonParser);
+						serviceMethodObject.setFeederRuleObj(json);
+					}
+
+					if(null != multipartfile && !multipartfile.getSubmittedFileName().equals("")) {
+						byte[] bytes = IOUtils.toByteArray(multipartfile.getInputStream());
+						String path = System.getProperty("user.dir")+"/target/performance/upload/"+multipartfile.getSubmittedFileName();
+						FileUtils.touch(new File(path));
+						BufferedOutputStream stream = new BufferedOutputStream(
+								new FileOutputStream(new File(path)));
+						stream.write(bytes);
+						stream.close();
+						serviceMethodObject.setMultiPart1(request.getParameter("multipartfile_object"));
+						serviceMethodObject.setMultiPart2(path);
+					}
+
+					Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
+					headerObj.put("Content-Type", request.getParameter("serviceConsume"));
+
+					if(null != request.getParameter("requestHeader")) {
+						String header = (request.getParameter("requestHeader").replaceAll("\\[|\\]", ""));
+						headerObj.put(header, request.getParameter(header));
+					}
+					serviceMethodObject.setHeaderObj(headerObj);
+
+					if(requestMethod[1].equalsIgnoreCase("POST") || 
+							requestMethod[1].equalsIgnoreCase("PUT")) {
+						if(requestMethod.length > 2 && null != requestMethod[2]) {
+							if(!requestMethod[2].startsWith("MultipartFile")) {
+								serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
+							}
+						}
+					}
+				}
+				if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")){
+					simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedFeederSimulation";
+				} else {
+					simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedSimulation";
+				}
+				loadGatlingUserConfiguration(request);
 			}
+
+			GatlingPropertiesBuilder props = new GatlingPropertiesBuilder();
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
 			return syncRunner(props);
@@ -264,7 +273,7 @@ public class TestDeedController {
 							+"."+f.getName());
 				}
 			} catch (Exception e) {
-				throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" User defined simulation class does not exist ",e);
+				throw new TestDeedValidationException("Configuration Error : User defined simulation class does not exist ",e);
 			}
 		});
 		return returnValue.toString().replace("package ","").replace(".scala", "");

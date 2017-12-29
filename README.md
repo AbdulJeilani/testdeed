@@ -20,8 +20,9 @@ https://mvnrepository.com/artifact/com.heapbrain/testdeed
   c. In main method - TestDeedApp.load(YourSpringBootApplication.class);
 
 4. In controller
-	a. In service - @TestDeedApi(name="Your Service name", isProdEnabled=false)
-	b. In method - @TestDeedApiOperation(name="testGet", description="Return employee Name")
+	a. In boot application - @TestDeedApplication(name="Sample")
+	b. In service - @TestDeedApi(name="Your Service name", isProdEnabled=false)
+	c. In method (Optional)- @TestDeedApiOperation(name="testGet", description="Return employee Name")
 
 5. Start your server..
 For performance url : <http://your_server_url>/testdeed.html

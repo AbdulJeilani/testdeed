@@ -14,7 +14,6 @@ import java.util.Properties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import com.heapbrain.core.testdeed.common.Constant;
 import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.executor.TestDeedController;
 
@@ -30,7 +29,6 @@ public class TestDeedApp {
 		try {
 			Properties prop = new Properties();
 			InputStream in = superClass.getClass().getResourceAsStream("/testdeed.properties");
-
 			prop.load(in);
 			for(String s : serverDetails) {
 				if(null!=s && !s.equals("")) {
@@ -42,7 +40,7 @@ public class TestDeedApp {
 			}
 			in.close();
 		}  catch (IOException | NullPointerException e) {
-			throw new TestDeedValidationException(Constant.CONFIGURATION_ERROR +" testdeed.properties configuration file missing.", e);
+			throw new TestDeedValidationException("Configuration Error : testdeed.properties configuration file missing.", e);
 		}
 		TestDeedController.serverHosts = listOfServers;	
 		TestDeedController.reportPath = System.getProperty("user.dir")+"/target/performance/reports";

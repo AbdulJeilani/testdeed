@@ -6,8 +6,7 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 class TestDeedFeederSimulation extends Simulation {
-	val httpConf = http.baseURL(Environment.baseURL).acceptHeader(
-			TestDeedController.serviceMethodObject.getAcceptHeader())
+	val httpConf = http.baseURL(Environment.baseURL)
 			var testDeedScenario =  new TestDeedFeederScenario()
 
 			var maxResponseTime = scala.util.Properties.envOrElse("maxResponseTime", 
