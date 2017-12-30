@@ -1,8 +1,14 @@
 package com.heapbrain.core.testdeed.utility;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -107,4 +113,26 @@ public class TestDeedSupportUtil {
 		return script;
 	}
 
+	public static Object loadCollectionObject(Object genericObject, String type_name) throws Exception {
+		switch(type_name) {
+		case "List":
+			List<Object> list = new ArrayList<>();
+			list.add(genericObject);
+			return list;
+		case "Set":
+			Set<Object> set = new HashSet<>();
+			set.add(genericObject);
+			return set;
+		case "Queue":
+			Queue<Object> queue = new LinkedList<>();
+			queue.add(genericObject);
+			return queue;
+		case "Collection":
+			Collection<Object> collection = new ArrayList<>();
+			collection.add(genericObject);
+			return collection;
+		}
+		return genericObject;
+	}
+	
 }

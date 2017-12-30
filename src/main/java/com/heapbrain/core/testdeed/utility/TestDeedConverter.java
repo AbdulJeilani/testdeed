@@ -33,13 +33,13 @@ import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 public class TestDeedConverter {
 
 	public static List<String> declaredVariableType = Arrays.asList("String","Byte","Character","Integer","Float","Double","Long","Short","int","char");
-	public static List<String> collectionClass = Arrays.asList("List","Set","Queue","Collection");
-	List<String> pairCollectionClass = Arrays.asList("Map");
+	public static List<String> collectionClass = Arrays.asList("List","Set","Queue","Collection","ArrayList","HashSet","LinkedList");
+	public static List<String> pairCollectionClass = Arrays.asList("Map","HashMap");
 	Map<String, Object> mapper4variable = new HashMap<String, Object>();
 
 	@Autowired
 	TestDeedUtility testDeedUtility;
-	
+
 	String requestAttributes = "";
 
 	public TestDeedConverter() {
@@ -56,15 +56,24 @@ public class TestDeedConverter {
 		mapper4variable.put("double", 0.0d);
 		mapper4variable.put("Long", 0l);
 		mapper4variable.put("long", 0l);
+
+		mapper4variable.put("StringObj", new String(""));
+		mapper4variable.put("ByteObj", new Byte((byte)0));
+		mapper4variable.put("CharacterObj", new Character('c'));
+		mapper4variable.put("IntegerObj", new Integer(0));
+		mapper4variable.put("FloatObj", new Float(0.0f));
+		mapper4variable.put("DoubleObj", new Double(0.0d));
+		mapper4variable.put("LongObj", new Long(0l));
 	}
 
 	public String getParmeters(String serviceName, Map<String, Object> params, String consumes, String requestMethod) throws Exception {
 		requestAttributes = "";
 		List<String> requestHeader = new ArrayList<String>();
+		String requestBodyType = params.get("RequestBodyType").toString();
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
 			if(entry.getKey().equals("RequestBody")) {
 				Class<?> classTemp = entry.getValue().getClass();
-				String jsonValue = convertObjectToString(getClassObject(classTemp.getName()),consumes);
+				String jsonValue = convertObjectToString(getClassObject(classTemp.getName()),consumes,requestBodyType);
 				if(!declaredVariableType.contains(classTemp.getSimpleName())) {
 					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Feeder (choose file)<br/>Body"
 							+ "("+classTemp.getSimpleName()+")</font></td>"+
@@ -115,7 +124,7 @@ public class TestDeedConverter {
 							} else {
 								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
 							}
-							
+
 							if(collectionClass.contains(param[0].split("&")[0]) &&
 									!requestMethod.equalsIgnoreCase("GET")) {
 								textField = "<textarea style=\"width:240px;\" class=\"text-container\" id=\""
@@ -137,7 +146,7 @@ public class TestDeedConverter {
 		return requestAttributes;
 	}
 
-	private String convertObjectToString(Object object, String consumes) {
+	private String convertObjectToString(Object object, String consumes, String requestBodyType) {
 
 		try {
 			for(PropertyDescriptor propertyDescriptor : 
@@ -148,31 +157,49 @@ public class TestDeedConverter {
 					String type = m.getGenericParameterTypes()[0].getTypeName();
 					String type_name = type.substring(type.lastIndexOf(".")+1,type.length());
 					String genericType = "";
+					String checkDeclaredVariableType = "";
 					if(type.endsWith(">")) {
 						type_name = type.substring(0, type.lastIndexOf('<'));
 						type_name = type_name.substring(type_name.lastIndexOf(".")+1, type_name.length());
 						genericType = type.substring(type.lastIndexOf('<')+1, type.length()-1);
+						checkDeclaredVariableType = genericType.substring(genericType.lastIndexOf('.')+1, genericType.length());
 					}
-					if(declaredVariableType.stream().anyMatch(type_name::equalsIgnoreCase)) {
-						if(mapper4variable.containsKey(type_name)) {
-							m.invoke(object, mapper4variable.get(type_name));
+					if(declaredVariableType.stream().anyMatch(type_name::equalsIgnoreCase) || 
+							declaredVariableType.stream().anyMatch(checkDeclaredVariableType::equalsIgnoreCase)) {
+						if(mapper4variable.containsKey(type_name) || mapper4variable.containsKey(checkDeclaredVariableType)) {
+							if(null == mapper4variable.get(type_name)) {
+								if(pairCollectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
+									Object genericObject = getClassObject((genericType.split(",")[1]).trim());
+									Map<Object, Object> map = new HashMap<>();
+									m.invoke(object,map);
+									convertObjectToString(genericObject,consumes,requestBodyType);
+								} else {
+									loadCollectionObject(m, object, mapper4variable.get(checkDeclaredVariableType+"Obj"), type_name);
+								}
+							} else {
+								m.invoke(object, mapper4variable.get(type_name));
+							}
 						} else {
 							m.invoke(object, 0);
 						}
 					} else if(collectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
 						Object genericObject = getClassObject(genericType);
 						loadCollectionObject(m, object, genericObject, type_name);
-						convertObjectToString(genericObject,consumes);
+						convertObjectToString(genericObject,consumes,requestBodyType);
 					} else if(pairCollectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
 						Object genericObject = getClassObject((genericType.split(",")[1]).trim());
 						Map<Object, Object> map = new HashMap<>();
 						m.invoke(object,map);
-						convertObjectToString(genericObject,consumes);
+						convertObjectToString(genericObject,consumes,requestBodyType);
 					}
 
 				}
 			}
 
+			if(!"".equals(requestBodyType)) {
+				object = TestDeedSupportUtil.loadCollectionObject(object, requestBodyType);
+			}
+						
 			if(consumes.endsWith("xml") && !object.equals("")) {
 				JacksonXmlModule xmlModule = new JacksonXmlModule();
 				xmlModule.setDefaultUseWrapper(false);
