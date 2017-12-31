@@ -41,8 +41,10 @@ public class TestDeedUtility {
 	public Map<String, Service> allServices = new HashMap<>();
 	boolean isSwagger = false;
 
-	public void loadClassConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo) {
+	public String loadClassConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo) {
 
+		String requestMappingClassLevel = "";
+		
 		TestDeedApi testDeedApi = annotatedClass.getDeclaredAnnotation(TestDeedApi.class);
 		TestDeedApplication testDeedApplication = 
 				annotatedClass.getDeclaredAnnotation(TestDeedApplication.class);
@@ -61,16 +63,17 @@ public class TestDeedUtility {
 			}
 			if(null != requestMapping) {
 				for(String baseUrl : requestMapping.value()) {
-					applicationInfo.setMapping(baseUrl);
+					requestMappingClassLevel = baseUrl;
 				}
 			}
 		}
 		if(null != testDeedApplication) {
 			applicationInfo.setApplicationName(testDeedApplication.name());
-		}	
+		}
+		return requestMappingClassLevel;
 	}
 
-	public void loadMethodConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo) throws Exception {
+	public void loadMethodConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo, String requestMappingClassLevel) throws Exception {
 		Service service = new Service();
 		if(null == annotatedClass.getAnnotation(SpringBootApplication.class)) {
 			for (Method method : annotatedClass.getDeclaredMethods()) {
@@ -163,8 +166,9 @@ public class TestDeedUtility {
 						service.setServiceMethodName(method.getName());
 						service.setDescription(method.getName()+" description unavailable");
 					}
-					allServices.put(service.getRequestMapping()+"~"+service.getRequestMethod(), service);
-					TestDeedController.serviceMethodObjectMap.put(applicationInfo.getMapping()+service.getRequestMapping(), TestDeedController.serviceMethodObject);
+					service.setRequestMappingClassLevel(requestMappingClassLevel);
+					allServices.put(service.getRequestMapping()+"~"+service.getRequestMethod()+"::"+annotatedClass.getName(), service);
+					TestDeedController.serviceMethodObjectMap.put(requestMappingClassLevel+service.getRequestMapping(), TestDeedController.serviceMethodObject);
 					TestDeedController.serviceMethodObject = new ServiceMethodObject();
 					service = new Service();
 				}

@@ -93,17 +93,18 @@ public class TestDeedSupportUtil {
 		StringBuilder hideAllService = new StringBuilder();
 		StringBuilder showAllService = new StringBuilder();
 		for(Map.Entry<String, Service> entry : services.entrySet()) {
+			String key = entry.getKey();//.split("::")[0];
 			script += "function showServices"+serviceCount+"() {";
 			String variable = "x"+(serviceCount);
-			script += "var "+variable+" = document.getElementById(\""+entry.getKey()+"_divshowhide\");";
+			script += "var "+variable+" = document.getElementById(\""+key+"_divshowhide\");";
 			script += "if ("+variable+".style.display == \"none\") {";
 			script += variable+".style.display = \"block\";";
 			script += "} else {";
 			script += variable+".style.display = \"none\";";
 			script += "}}";
 			serviceCount++;
-			hideAllService.append("document.getElementById(\""+entry.getKey()+"_divshowhide\").style.display = \"none\";");
-			showAllService.append("document.getElementById(\""+entry.getKey()+"_divshowhide\").style.display = \"block\";");
+			hideAllService.append("document.getElementById(\""+key+"_divshowhide\").style.display = \"none\";");
+			showAllService.append("document.getElementById(\""+key+"_divshowhide\").style.display = \"block\";");
 		}
 		
 		script += "function hideAllService(){"+hideAllService+"}";

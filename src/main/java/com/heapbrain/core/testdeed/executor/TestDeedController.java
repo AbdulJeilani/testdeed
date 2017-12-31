@@ -38,6 +38,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.annotations.TestDeedApplication;
 import com.heapbrain.core.testdeed.engine.TestDeedReportGenerateEngine;
 import com.heapbrain.core.testdeed.engine.TestDeedServiceGenerateEngine;
@@ -92,19 +93,20 @@ public class TestDeedController {
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
 			Class<?> cl = Class.forName(bd.getBeanClassName());
 			if(TestDeedControllerUtil.isTestDeedConfigClass(cl)) {
-				testDeedUtility.loadClassConfig(cl, applicationInfo);
-				testDeedUtility.loadMethodConfig(cl, applicationInfo);
-				if(null == cl.getDeclaredAnnotation(SpringBootApplication.class)) {
-					controllerClasses.add(cl.getSimpleName());
+				if(null != cl.getDeclaredAnnotation(TestDeedApi.class)) {
+					testDeedUtility.loadMethodConfig(cl, applicationInfo, testDeedUtility.loadClassConfig(cl, applicationInfo));
+					if(null == cl.getDeclaredAnnotation(SpringBootApplication.class)) {
+						controllerClasses.add(cl.getSimpleName());
+					}
+					if(null != cl.getDeclaredAnnotation(SpringBootApplication.class) 
+							&& null == cl.getDeclaredAnnotation(TestDeedApplication.class)) {
+						String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
+								Charset.forName("UTF-8"));
+						return htmlString.replace("~testdeedexception~", "Configuration Error : Testdeed configurations missing in springboot.")
+								.replace("~printstacktrace~", "");
+					}
+					isControllerPresent = true;
 				}
-				if(null != cl.getDeclaredAnnotation(SpringBootApplication.class) 
-						&& null == cl.getDeclaredAnnotation(TestDeedApplication.class)) {
-					String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
-							Charset.forName("UTF-8"));
-					return htmlString.replace("~testdeedexception~", "Configuration Error : Testdeed configurations missing in springboot.")
-							.replace("~printstacktrace~", "");
-				}
-				isControllerPresent = true;
 			}
 		}
 		if(isControllerPresent) {

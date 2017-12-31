@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.heapbrain.core.testdeed.annotations.TestDeedApi;
 import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 
 /**
@@ -26,8 +25,7 @@ public class TestDeedControllerUtil {
 	public static boolean isTestDeedConfigClass(Class<?> classInput) {
 		if(null != classInput.getDeclaredAnnotation(Controller.class) || 
 				null != classInput.getDeclaredAnnotation(RestController.class) || 
-				null != classInput.getDeclaredAnnotation(SpringBootApplication.class) || 
-				null != classInput.getDeclaredAnnotation(TestDeedApi.class)) {
+				null != classInput.getDeclaredAnnotation(SpringBootApplication.class)) {
 			return true;
 		}
 		return false;

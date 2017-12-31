@@ -17,12 +17,19 @@ import java.util.Map;
 public class Service {
 	String serviceName="";
 	String serviceMethodName="";
+	String requestMappingClassLevel="";
 	String requestMapping="";
 	String requestMethod="";
 	String description="";
 	List<String> consume=new ArrayList<>();
 	Map<String, Object> parameters = new HashMap<>();
 	
+	public String getRequestMappingClassLevel() {
+		return requestMappingClassLevel;
+	}
+	public void setRequestMappingClassLevel(String requestMappingClassLevel) {
+		this.requestMappingClassLevel = requestMappingClassLevel;
+	}
 	public String getServiceName() {
 		return serviceName;
 	}

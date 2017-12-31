@@ -20,7 +20,7 @@ https://mvnrepository.com/artifact/com.heapbrain/testdeed
   c. In main method - TestDeedApp.load(YourSpringBootApplication.class);
 
 4. In controller
-	a. In service - @TestDeedApi(name="Your Service name", isProdEnabled=false)
+	a. In service - @TestDeedApi(name="Your Service name", isProdEnabled=false) - Name should be unique
 	b. In method (Optional)- @TestDeedApiOperation(name="testGet", description="Return employee Name")
 
 5. Start your server..

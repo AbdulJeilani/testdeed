@@ -11,7 +11,7 @@ public class ApplicationInfo {
 	String serverLocalUrl="";
 	String applicationName="{application.name.missing}";
 	String testDeedApi="";
-	String mapping="";
+	//String mapping="";
 	boolean isSwagger=false;
 	boolean isProdEnabled=false;
 	Map<String, Service> services = new HashMap<>();
@@ -28,12 +28,12 @@ public class ApplicationInfo {
 	public void setApplicationName(String applicationName) {
 		this.applicationName = applicationName;
 	}
-	public String getMapping() {
+	/*public String getMapping() {
 		return mapping;
 	}
 	public void setMapping(String mapping) {
 		this.mapping = mapping;
-	}
+	}*/
 	public String getTestDeedApi() {
 		return testDeedApi;
 	}

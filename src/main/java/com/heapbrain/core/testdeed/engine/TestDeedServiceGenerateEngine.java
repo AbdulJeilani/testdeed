@@ -35,7 +35,7 @@ public class TestDeedServiceGenerateEngine {
 					Charset.forName("UTF-8"));
 			htmlString = htmlString.replace("~application.name~", applicationInfo.getApplicationName());
 			htmlString = htmlString.replace("~addshowhidescript~", TestDeedSupportUtil.loadShowHideScript(applicationInfo.getServices()));
-			htmlString = htmlString.replace("~servicedetails~", loadServiceDetails(applicationInfo.getMapping(), applicationInfo.getServices()));
+			htmlString = htmlString.replace("~servicedetails~", loadServiceDetails(applicationInfo.getServices()));
 			htmlString = htmlString.replaceAll("~listofservers~", TestDeedServiceUtil.loadHostDetails(applicationInfo.getServerLocalUrl()));
 			String userDefined = "";
 			if(TestDeedController.simulationClass.equals("")) {
@@ -64,15 +64,17 @@ public class TestDeedServiceGenerateEngine {
 		}
 	}
 
-	private String loadServiceDetails(String baseMap, Map<String, Service> services) throws Exception {
+	private String loadServiceDetails(Map<String, Service> services) throws Exception {
 		String response = "";
 		String temp = "";
 		String serviceDesign = IOUtils.toString(testDeedUtility.getHtmlFile("servicedetails.html"), 
 				Charset.forName("UTF-8"));
 		int serviceCount=0;
 		for(Map.Entry<String, Service> entry : services.entrySet()) {
+			String key = entry.getKey();//.split("::")[0];;
 			Service service = entry.getValue();
-			if(!entry.getKey().equals("~")) {
+			String baseMap = service.getRequestMappingClassLevel();
+			if(!key.equals("~")) {
 				temp = serviceDesign;
 				temp = temp.replace("~serviceshowhideopen~", "<a href=\"javascript:showServices"+serviceCount+"();\">");
 				temp = temp.replace("~request.method~", service.getRequestMethod());
@@ -90,7 +92,7 @@ public class TestDeedServiceGenerateEngine {
 							service.getConsume(), "Consume",true));
 				}
 
-				response += temp + loadParameters(baseMap, service.getRequestMapping(), 
+				response += temp + loadParameters(key, baseMap, service.getRequestMapping(), 
 						service.getParameters(), service.getRequestMethod(), consumes, service.getServiceName(),
 						service.getServiceMethodName(),service.getDescription());
 				serviceCount++;
@@ -100,10 +102,10 @@ public class TestDeedServiceGenerateEngine {
 		return response;
 	}
 
-	private String loadParameters(String baseMap, String requestMapping, Map<String, Object> parameters, 
+	private String loadParameters(String key, String baseMap, String requestMapping, Map<String, Object> parameters, 
 			String requestMethod, String consumes, String serviceName, String methodName, String methodDescription) throws Exception {
 
-		String parametersDesign = TestDeedServiceUtil.loadParameters(IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
+		String parametersDesign = TestDeedServiceUtil.loadParameters(key, IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
 				Charset.forName("UTF-8")), baseMap, requestMapping, parameters, 
 				requestMethod, consumes, serviceName, methodName, methodDescription);
 

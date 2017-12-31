@@ -11,10 +11,10 @@ public class TestDeedServiceUtil {
 	@Autowired
 	TestDeedUtility testDeedUtility;
 	
-	public static String loadParameters(String parametersDesign, String baseMap, String requestMapping, Map<String, Object> parameters, 
+	public static String loadParameters(String key, String parametersDesign, String baseMap, String requestMapping, Map<String, Object> parameters, 
 			String requestMethod, String consumes, String serviceName, String methodName, String methodDescription) throws Exception {
 
-		parametersDesign = parametersDesign.replace("~id~", requestMapping+"~"+requestMethod+"_divshowhide");
+		parametersDesign = parametersDesign.replace("~id~", key+"_divshowhide");
 		parametersDesign = parametersDesign.replace("~application.service.name~", serviceName);
 
 		parametersDesign = parametersDesign.replace("~service.method.name~", methodName);
