@@ -127,11 +127,13 @@ public class TestDeedConverter {
 							} else {
 								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
 							}
-
-							if(collectionClass.contains(param[0].split("&")[0]) &&
+							
+							if(paramsName.contains("&") && collectionClass.contains(param[0].split("&")[0]) &&
 									!requestMethod.equalsIgnoreCase("GET")) {
-								textField = "<textarea style=\"width:240px;\" class=\"text-container\" id=\""
-										+param[1]+"\" name=\""+param[1]+"\"></textarea>";
+								if(!declaredVariableType.contains((param[0].split("&")[1]).replace("lt;", ""))) {
+									textField = "<textarea style=\"width:240px;\" class=\"text-container\" id=\""
+											+param[1]+"\" name=\""+param[1]+"\"></textarea>";
+								}
 							}
 							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
 									+param[1]+ "</font></td>"+
