@@ -5,28 +5,28 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.heapbrain.core.testdeed.executor.TestDeedController;
+import com.heapbrain.core.testdeed.to.Service;
 
 public class TestDeedServiceUtil {
 
 	@Autowired
 	TestDeedUtility testDeedUtility;
 	
-	public static String loadParameters(String key, String parametersDesign, String baseMap, String requestMapping, Map<String, Object> parameters, 
-			String requestMethod, String consumes, String serviceName, String methodName, String methodDescription) throws Exception {
-
+	public static String loadParameters(String key, String parametersDesign, String baseMap, String consumes, Service service) throws Exception {
+		Map<String, Object> parameters = service.getParameters();
 		parametersDesign = parametersDesign.replace("~id~", key+"_divshowhide");
-		parametersDesign = parametersDesign.replace("~application.service.name~", serviceName);
+		parametersDesign = parametersDesign.replace("~application.service.name~", service.getServiceName());
 
-		parametersDesign = parametersDesign.replace("~service.method.name~", methodName);
-		parametersDesign = parametersDesign.replace("~service.description~", methodDescription);
+		parametersDesign = parametersDesign.replace("~service.method.name~", service.getServiceMethodName());
+		parametersDesign = parametersDesign.replace("~service.description~", service.getDescription());
 		
 		if(null != parameters.get("RequestBody")) {
 			Class<?> classTemp = parameters.get("RequestBody").getClass();
 			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
-				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~"+classTemp.getSimpleName());
+				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+service.getRequestMapping()+"~"+service.getRequestMethod()+"~"+classTemp.getSimpleName());
 			}
 		} else {
-			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+requestMapping+"~"+requestMethod+"~");
+			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+service.getRequestMapping()+"~"+service.getRequestMethod()+"~");
 		}
 
 		return parametersDesign;

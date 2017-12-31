@@ -173,7 +173,9 @@ public class TestDeedController {
 					}
 
 					Map<String, String> headerObj = serviceMethodObject.getHeaderObj();
-					headerObj.put("Content-Type", request.getParameter("serviceConsume"));
+					if(!requestMethod[1].equalsIgnoreCase("GET")) {
+						headerObj.put("Content-Type", request.getParameter("serviceConsume"));
+					}
 
 					if(null != request.getParameter("requestHeader")) {
 						String header = (request.getParameter("requestHeader").replaceAll("\\[|\\]", ""));

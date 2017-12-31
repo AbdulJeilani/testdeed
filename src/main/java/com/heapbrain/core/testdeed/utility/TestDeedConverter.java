@@ -8,6 +8,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +33,7 @@ import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 
 public class TestDeedConverter {
 
-	public static List<String> declaredVariableType = Arrays.asList("String","Byte","Character","Integer","Float","Double","Long","Short","int","char");
+	public static List<String> declaredVariableType = Arrays.asList("String","BigDecimal","Byte","Character","Integer","Float","Double","Long","Short","int","char");
 	public static List<String> collectionClass = Arrays.asList("List","Set","Queue","Collection","ArrayList","HashSet","LinkedList");
 	public static List<String> pairCollectionClass = Arrays.asList("Map","HashMap");
 	Map<String, Object> mapper4variable = new HashMap<String, Object>();
@@ -44,6 +45,7 @@ public class TestDeedConverter {
 
 	public TestDeedConverter() {
 		mapper4variable.put("String", "string");
+		mapper4variable.put("BigDecimal", new BigDecimal("0.0"));
 		mapper4variable.put("Byte", (byte)0);
 		mapper4variable.put("byte", (byte)0);
 		mapper4variable.put("Character",'c');
@@ -58,6 +60,7 @@ public class TestDeedConverter {
 		mapper4variable.put("long", 0l);
 
 		mapper4variable.put("StringObj", new String(""));
+		mapper4variable.put("BigDecimalObj", new BigDecimal(0));
 		mapper4variable.put("ByteObj", new Byte((byte)0));
 		mapper4variable.put("CharacterObj", new Character('c'));
 		mapper4variable.put("IntegerObj", new Integer(0));

@@ -8,6 +8,7 @@ import scala.collection.Map
 import scala.util.Random
 import com.fasterxml.jackson.databind.JsonNode
 
+@throws(classOf[Exception])
 class TestDeedFeederScenario { 
 
 	var httpTestDeedLookup = scenario(""); 
@@ -16,7 +17,7 @@ class TestDeedFeederScenario {
 			println("Method : "+TestDeedController.serviceMethodObject.getMethod())
 			println("Service Name : "+TestDeedController.serviceMethodObject.getServiceName())
 			println("RequestBody : "+TestDeedController.serviceMethodObject.getRequestBody())
-			println("ExecuteService : " + TestDeedController.serviceMethodObject.getExecuteService())
+			println("ExecuteService : " + Environment.baseURL+TestDeedController.serviceMethodObject.getExecuteService())
 			var listOfInputs = List[JsonNode]()
 			var listOfInputsXml = List[String]()
 
@@ -26,15 +27,15 @@ class TestDeedFeederScenario {
 				listOfInputsXml = (TestDeedController.serviceMethodObject.getFeederRuleXMLObj()).asScala.toList
 			}
 
-      	println("Feeder Config (JSON): "+listOfInputs)
-      	println("Feeder Config (XML): "+listOfInputsXml)    
-      
-      	def pickRandomInput() = {
-      			listOfInputs(Random.nextInt(listOfInputs.size))
-      	}   
-      	def pickRandomInputXML() = {
-      			listOfInputsXml(Random.nextInt(listOfInputsXml.size))
-      	}
+	println("Feeder Config (JSON): "+listOfInputs)
+	println("Feeder Config (XML): "+listOfInputsXml)    
+
+	def pickRandomInput() = {
+			listOfInputs(Random.nextInt(listOfInputs.size))
+	}   
+	def pickRandomInputXML() = {
+			listOfInputsXml(Random.nextInt(listOfInputsXml.size))
+	}
 
 	if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
 		var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()

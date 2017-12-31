@@ -44,7 +44,7 @@ public class TestDeedUtility {
 	public String loadClassConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo) {
 
 		String requestMappingClassLevel = "";
-		
+
 		TestDeedApi testDeedApi = annotatedClass.getDeclaredAnnotation(TestDeedApi.class);
 		TestDeedApplication testDeedApplication = 
 				annotatedClass.getDeclaredAnnotation(TestDeedApplication.class);
@@ -96,7 +96,7 @@ public class TestDeedUtility {
 					for(Annotation[] annotation_params : annotations_params) {
 						for(Annotation annotation_param : annotation_params) {
 							if(annotation_param.annotationType().equals(PathVariable.class)) {
-								requestParam.add(TestDeedSupportUtil.getGenericType(
+								pathVariableList.add(TestDeedSupportUtil.getGenericType(
 										method.getParameters()[parameterCount].toString().split(" ")[0]
 												+" "+info.lookupParameterNames(method)[parameterCount]));
 								parameterCount++;
@@ -125,8 +125,8 @@ public class TestDeedUtility {
 										parameters.put("RequestBodyType", collectionType);
 									}
 								}
-									parameters.put("RequestBody", TestDeedConverter.getClassObject(requestBody));
-									parameterCount++;
+								parameters.put("RequestBody", TestDeedConverter.getClassObject(requestBody));
+								parameterCount++;
 
 							} else if(annotation_param.annotationType().equals(ModelAttribute.class)) {
 								parameters.put("ModelAttribute", TestDeedConverter.getClassObject(method.getParameterTypes()[parameterCount].getName()));
@@ -146,6 +146,8 @@ public class TestDeedUtility {
 					} else if(null != apiOperation) {
 						if(null!=apiOperation.consumes() && !apiOperation.consumes().isEmpty()) {
 							service.setConsume(Arrays.asList(apiOperation.consumes()));
+						} else if(requestMapping.consumes()!=null && requestMapping.consumes().length != 0) {
+							service.setConsume(Arrays.asList(requestMapping.consumes()));
 						}
 					} 
 

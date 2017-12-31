@@ -92,25 +92,20 @@ public class TestDeedServiceGenerateEngine {
 							service.getConsume(), "Consume",true));
 				}
 
-				response += temp + loadParameters(key, baseMap, service.getRequestMapping(), 
-						service.getParameters(), service.getRequestMethod(), consumes, service.getServiceName(),
-						service.getServiceMethodName(),service.getDescription());
+				response += temp + loadParameters(key, baseMap, consumes, service);
 				serviceCount++;
 			}
-
 		}
 		return response;
 	}
 
-	private String loadParameters(String key, String baseMap, String requestMapping, Map<String, Object> parameters, 
-			String requestMethod, String consumes, String serviceName, String methodName, String methodDescription) throws Exception {
-
+	private String loadParameters(String key, String baseMap, String consumes, Service service) throws Exception {
+		
 		String parametersDesign = TestDeedServiceUtil.loadParameters(key, IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
-				Charset.forName("UTF-8")), baseMap, requestMapping, parameters, 
-				requestMethod, consumes, serviceName, methodName, methodDescription);
+				Charset.forName("UTF-8")), baseMap, consumes, service);
 
 		parametersDesign = parametersDesign.replace("~loadparameter~", 
-				testDeedConverter.getParmeters(baseMap+requestMapping, parameters, consumes, requestMethod));
+				testDeedConverter.getParmeters(baseMap+service.getRequestMapping(), service.getParameters(), consumes, service.getRequestMethod()));
 
 		parametersDesign = parametersDesign.replace("~updatedURL~", updatedURL);
 		updatedURL = "";
