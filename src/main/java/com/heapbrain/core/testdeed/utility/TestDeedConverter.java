@@ -77,15 +77,22 @@ public class TestDeedConverter {
 			if(entry.getKey().equals("RequestBody")) {
 				Class<?> classTemp = entry.getValue().getClass();
 				String jsonValue = convertObjectToString(getClassObject(classTemp.getName()),consumes,requestBodyType);
+				String className = classTemp.getSimpleName();
+				if(requestBodyType.equals("List") || 
+						requestBodyType.equals("ArrayList")) {
+					className = requestBodyType+"&lt;"+classTemp.getSimpleName()+"&gt;";
+				} else {
+					className = classTemp.getSimpleName();
+				}
 				if(!declaredVariableType.contains(classTemp.getSimpleName())) {
 					requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">Feeder (choose file)<br/>Body"
-							+ "("+classTemp.getSimpleName()+")</font></td>"+
+							+ "("+className+")</font></td>"+
 							"<td><input type=\"file\" id=\"bodyFeeder\" name=\"bodyFeeder\"/>"
 							+ "<br/>"
 							+ "<textarea style=\"width:240px;\" class=\"text-container\" id=\""+classTemp.getSimpleName()+"\" name=\""+classTemp.getSimpleName()+"\">"+
 							jsonValue
 							+"</textarea></td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td><td><font color=\"#3c495a\">"+
-							classTemp.getSimpleName()+"</font></td></tr>";
+							className+"</font></td></tr>";
 				}
 			} else if(entry.getKey().equals("ModelAttribute")) {
 				Class<?> classTemp = entry.getValue().getClass();

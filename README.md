@@ -3,14 +3,20 @@ www.heapbrain.com
 
 Requirement : JDK 1.8
 
+1. Install scala 2.12.3
+
 1. add dependancy
 https://mvnrepository.com/artifact/com.heapbrain/testdeed
 <!-- https://mvnrepository.com/artifact/com.heapbrain/testdeed -->
 <dependency>
     <groupId>com.heapbrain</groupId>
     <artifactId>testdeed</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.7</version>
 </dependency>
+
+2. Clear your warnings from pom.xml (ex. managed version higher)
+
+2. maven update project and then "run clean package"
 
 2. add testdeed.properties in your src/resource folder to add qahost, qphost, prhost
 
