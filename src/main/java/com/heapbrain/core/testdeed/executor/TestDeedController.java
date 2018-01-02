@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import org.apache.commons.io.FileUtils;
@@ -93,17 +94,11 @@ public class TestDeedController {
 		for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
 			Class<?> cl = Class.forName(bd.getBeanClassName());
 			if(TestDeedControllerUtil.isTestDeedConfigClass(cl)) {
-				if(null != cl.getDeclaredAnnotation(TestDeedApi.class)) {
+				if(null != cl.getDeclaredAnnotation(TestDeedApi.class) || 
+						null != cl.getDeclaredAnnotation(TestDeedApplication.class)) {
 					testDeedUtility.loadMethodConfig(cl, applicationInfo, testDeedUtility.loadClassConfig(cl, applicationInfo));
 					if(null == cl.getDeclaredAnnotation(SpringBootApplication.class)) {
 						controllerClasses.add(cl.getSimpleName());
-					}
-					if(null != cl.getDeclaredAnnotation(SpringBootApplication.class) 
-							&& null == cl.getDeclaredAnnotation(TestDeedApplication.class)) {
-						String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
-								Charset.forName("UTF-8"));
-						return htmlString.replace("~testdeedexception~", "Configuration Error : Testdeed configurations missing in springboot.")
-								.replace("~printstacktrace~", "");
 					}
 					isControllerPresent = true;
 				}
@@ -113,12 +108,15 @@ public class TestDeedController {
 			return testDeedServiceGenerateEngine.generateHomePage(applicationInfo)
 					.replace("~controllerClasses~", controllerClasses.toString().replaceAll("\\[|\\]", ""));
 		} else {
-			throw new TestDeedValidationException("Configuration Error : Controller configurations missing.");
+			String htmlString = IOUtils.toString(testDeedUtility.getHtmlFile("testdeedexception.html"), 
+					Charset.forName("UTF-8"));
+			return htmlString.replace("~testdeedexception~", "Configuration Error : Testdeed configurations missing in springboot.")
+					.replace("~printstacktrace~", "");
 		}
 	}
 
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
-	public synchronized String loadPerformanceResult(HttpServletRequest request) throws IOException {
+	public synchronized void loadPerformanceResult(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		try {
 
 			if(!request.getParameter("simulationclass").equals("")) {
@@ -143,7 +141,7 @@ public class TestDeedController {
 						if(serviceMethodObject.getAcceptHeader().equals("application/json")) {
 							String isValid = TestDeedSupportUtil.isValidJSON(feederInput);
 							if(!isValid.equals("yes")) {
-								return isValid; 
+								response.sendRedirect("/testdeed.html");
 							}
 							ObjectMapper mapper = new ObjectMapper();
 							JsonParser jsonParser = new JsonFactory().createParser(feederInput);
@@ -203,7 +201,7 @@ public class TestDeedController {
 			GatlingPropertiesBuilder props = new GatlingPropertiesBuilder();
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
-			return syncRunner(props);
+			response.sendRedirect(syncRunner(props));
 		} catch (Exception e) {
 			throw new TestDeedValidationException("Gatling configuration error " + e.getMessage(), e);
 		}
@@ -214,9 +212,7 @@ public class TestDeedController {
 			FileUtils.deleteDirectory(new File(reportPath));
 			Gatling.fromMap(props.build());
 			TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
-			String gatlingReportHtml = IOUtils.toString(testDeedUtility.getHtmlFile("gatlingreport.html"), 
-					Charset.forName("UTF-8"));
-			return gatlingReportHtml.replace("~reportindexpath~", singleReport.generateReportFromGatling());
+			return singleReport.generateReportFromGatling();
 		} catch(Exception e) {
 			throw new TestDeedValidationException(TestDeedSupportUtil.getErrorResponse("Gatling configuration error ",e.getMessage(),e.getStackTrace()));
 		}
