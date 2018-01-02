@@ -58,6 +58,9 @@ public class TestDeedConverter {
 		mapper4variable.put("double", 0.0d);
 		mapper4variable.put("Long", 0l);
 		mapper4variable.put("long", 0l);
+		mapper4variable.put("boolean", false);
+		mapper4variable.put("short", (short) 0 );
+		mapper4variable.put("Short", (short) 0);
 
 		mapper4variable.put("StringObj", new String(""));
 		mapper4variable.put("BigDecimalObj", new BigDecimal(0));
@@ -67,6 +70,7 @@ public class TestDeedConverter {
 		mapper4variable.put("FloatObj", new Float(0.0f));
 		mapper4variable.put("DoubleObj", new Double(0.0d));
 		mapper4variable.put("LongObj", new Long(0l));
+		mapper4variable.put("ShortObj", new Short((short) 0));
 	}
 
 	public String getParmeters(String serviceName, Map<String, Object> params, String consumes, String requestMethod) throws Exception {
@@ -192,7 +196,7 @@ public class TestDeedConverter {
 								m.invoke(object, mapper4variable.get(type_name));
 							}
 						} else {
-							m.invoke(object, 0);
+							m.invoke(object, mapper4variable.get(type_name));
 						}
 					} else if(collectionClass.stream().anyMatch(type_name::equalsIgnoreCase)) {
 						Object genericObject = getClassObject(genericType);
@@ -225,7 +229,7 @@ public class TestDeedConverter {
 				return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 			}
 		} catch (Exception e) {
-			throw new TestDeedValidationException("TestDeed error : Unable to sample JSON object", e);
+			throw new TestDeedValidationException("TestDeed error : Unable to convert sample JSON object", e);
 		}
 
 		return "";
