@@ -11,28 +11,26 @@ https://mvnrepository.com/artifact/com.heapbrain/testdeed
 <dependency>
     <groupId>com.heapbrain</groupId>
     <artifactId>testdeed</artifactId>
-    <version>1.2.7</version>
+    <version>1.3.0</version>
 </dependency>
 
 2. Clear your warnings from pom.xml (ex. managed version higher)
+   Maven update and "run clean package"
 
-2. maven update project and then "run clean package"
+4. add testdeed.properties in src/resource folder and add qahost, qphost, prhost
+   add /webapp/performance folder under /src/main - This will help to access your report from server.
 
-2. add testdeed.properties in your src/resource folder to add qahost, qphost, prhost
-
-3. In springboot class
-  a. @TestDeedApplication(name="Your application name")
-  b. @ComponentScan(basePackages= {"com.heapbrain.core.testdeed","your_package"})
-  c. In main method - TestDeedApp.load(YourSpringBootApplication.class);
-
-4. In controller
+5. In springboot class
+	a. @TestDeedApplication(name="Your application name")
+	b. @ComponentScan(basePackages= {"com.heapbrain.core.testdeed","your_package"})
+	c. In main method - TestDeedApp.load(YourSpringBootApplication.class);
+  
+   In controller
 	a. In service - @TestDeedApi(name="Your Service name", isProdEnabled=false) - Name should be unique
 	b. In method (Optional)- @TestDeedApiOperation(name="testGet", description="Return employee Name")
 
-5. Start your server..
+6. Start your server..
 For performance url : <http://your_server_url>/testdeed.html
 Your report : <http://your_server_url>/loadrunner.html
-
-You can save your report using browser save function. It will save complete report in single html file.
 
 Happy stress loading :)

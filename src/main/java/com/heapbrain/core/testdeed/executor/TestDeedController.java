@@ -214,9 +214,9 @@ public class TestDeedController {
 			FileUtils.deleteDirectory(new File(reportPath));
 			Gatling.fromMap(props.build());
 			TestDeedReportGenerateEngine singleReport = new TestDeedReportGenerateEngine();
-			String response = singleReport.generateReportFromGatling();
-
-			return response;
+			String gatlingReportHtml = IOUtils.toString(testDeedUtility.getHtmlFile("gatlingreport.html"), 
+					Charset.forName("UTF-8"));
+			return gatlingReportHtml.replace("~reportindexpath~", singleReport.generateReportFromGatling());
 		} catch(Exception e) {
 			throw new TestDeedValidationException(TestDeedSupportUtil.getErrorResponse("Gatling configuration error ",e.getMessage(),e.getStackTrace()));
 		}

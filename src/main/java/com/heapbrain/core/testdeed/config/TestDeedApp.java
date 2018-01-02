@@ -13,16 +13,25 @@ import java.util.Properties;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.heapbrain.core.testdeed.exception.TestDeedValidationException;
 import com.heapbrain.core.testdeed.executor.TestDeedController;
 
 @Configuration
 @ComponentScan(basePackages = {"com.heapbrain.core.testdeed"})
-public class TestDeedApp {
+@EnableWebMvc
+public class TestDeedApp extends WebMvcConfigurerAdapter {
 
 	public final static List<String> serverDetails = Arrays.asList("qahost","qphost","prhost");
-
+	
+	@Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/performance/**").addResourceLocations("/performance/");
+    }
+	
 	public static void load(Class<?> superClass) {
 		TestDeedController.basePackage = superClass.getPackage().getName();
 		List<String> listOfServers = new ArrayList<>();
@@ -43,6 +52,6 @@ public class TestDeedApp {
 			throw new TestDeedValidationException("Configuration Error : testdeed.properties configuration file missing.", e);
 		}
 		TestDeedController.serverHosts = listOfServers;	
-		TestDeedController.reportPath = System.getProperty("user.dir")+"/target/performance/reports";
+		TestDeedController.reportPath = System.getProperty("user.dir")+"/src/main/webapp/performance/reports";
 	}
 }
