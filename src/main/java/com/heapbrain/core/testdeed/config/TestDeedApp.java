@@ -13,7 +13,6 @@ import java.util.Properties;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -22,7 +21,6 @@ import com.heapbrain.core.testdeed.executor.TestDeedController;
 
 @Configuration
 @ComponentScan(basePackages = {"com.heapbrain.core.testdeed"})
-@EnableWebMvc
 public class TestDeedApp extends WebMvcConfigurerAdapter {
 
 	public final static List<String> serverDetails = Arrays.asList("qahost","qphost","prhost");
