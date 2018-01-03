@@ -7,6 +7,11 @@ import scala.concurrent.duration._
 
 @throws(classOf[Exception])
 class TestDeedFeederSimulation extends Simulation {
+  try {
+    
+  } catch {
+	  case e : Exception => throw new Exception("Gatling performance Issue " + e)
+	}
 	val httpConf = http.baseURL(Environment.baseURL).disableWarmUp
 			var testDeedScenario =  new TestDeedFeederScenario()
 

@@ -22,7 +22,9 @@ import io.gatling.http.Predef.status
 @throws(classOf[Exception])
 class TestDeedScenario { 
 
-	var httpTestDeedLookup = scenario(""); 
+  var httpTestDeedLookup = scenario(""); 
+   
+  try {
 	var scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
 
 	println("Method : "+TestDeedController.serviceMethodObject.getMethod());
@@ -112,4 +114,8 @@ class TestDeedScenario {
 				.exec(flushCookieJar)
 				.exec(flushSessionCookies)
 	}
+  } catch {
+	  case e : Exception => throw new Exception("Gatling performance Issue " + e)
+	}
+	
 }
