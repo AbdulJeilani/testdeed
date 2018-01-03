@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode
 class TestDeedFeederScenario { 
   var httpTestDeedLookup = scenario(""); 
 	try {
-		var scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
+		val scalaHeader = (TestDeedController.serviceMethodObject.getHeaderObj()).asScala.toMap
 
 				println("Method : "+TestDeedController.serviceMethodObject.getMethod())
 				println("Service Name : "+TestDeedController.serviceMethodObject.getServiceName())
