@@ -103,6 +103,9 @@ class TestDeedFeederScenario {
 					.exec(flushSessionCookies)
 		}
 	} catch {
-	case e : Exception => throw new Exception("Gatling performance Issue " + e)
+		case e : Exception => {
+			println("From Gatling : " + e.fillInStackTrace())
+			throw new Exception("Gatling performance Issue " + e)
+		}
 	}
 }

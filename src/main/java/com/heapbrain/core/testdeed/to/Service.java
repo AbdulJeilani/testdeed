@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Service {
+public class Service implements Cloneable {
 	String serviceName="";
 	String serviceMethodName="";
 	String requestMappingClassLevel="";
@@ -71,5 +71,8 @@ public class Service {
 	}
 	public void setParameters(Map<String, Object> parameters) {
 		this.parameters = parameters;
+	}
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 }

@@ -85,7 +85,7 @@ public class TestDeedServiceGenerateEngine {
 				String consumes="";
 				if(null == service.getConsume()) {
 					temp = temp.replace("~contenttype_consume~", TestDeedSupportUtil.getContentType(baseMap+service.getRequestMapping(),
-							Arrays.asList("application/xml","application/json","multipart/form-data"),"Consume",false));
+							Arrays.asList("","application/xml","application/json","multipart/form-data"),"Consume",false));
 				} else {
 					consumes=service.getConsume().get(0);
 					temp = temp.replace("~contenttype_consume~", TestDeedSupportUtil.getContentType(baseMap+service.getRequestMapping(),

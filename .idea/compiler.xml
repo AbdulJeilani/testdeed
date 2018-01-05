@@ -10,6 +10,31 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="inflector-dropwizard-guice-sample" target="1.5" />
+      <module name="inflector-dropwizard-sample" target="1.5" />
+      <module name="jetty-webxml-sample" target="1.5" />
+      <module name="swagger-java-cxf-sample" target="1.6" />
+      <module name="swagger-java-dropwizard-sample-app" target="1.6" />
+      <module name="swagger-java-grails2-jersey2-sample-app" target="1.6" />
+      <module name="swagger-java-jersey-governator-sample-app" target="1.6" />
+      <module name="swagger-java-jersey-multi-sample-app" target="1.6" />
+      <module name="swagger-java-jersey-multi-simple-servlet-sample-app" target="1.6" />
+      <module name="swagger-java-jersey-multi-simple-webxml-sample-app" target="1.6" />
+      <module name="swagger-java-jersey-multi-use-basepath-sample-app" target="1.6" />
+      <module name="swagger-java-jersey-sample-app" target="1.6" />
+      <module name="swagger-java-mule-app" target="1.7" />
+      <module name="swagger-java-no-annotations-sample" target="1.6" />
+      <module name="swagger-java-resteasy-filter-sample" target="1.6" />
+      <module name="swagger-java-resteasy-sample" target="1.6" />
+      <module name="swagger-java-resteasy-spring-sample" target="1.6" />
+      <module name="swagger-java-sample-app" target="1.6" />
+      <module name="swagger-java-sample-app-no-webxml" target="1.6" />
+      <module name="swagger-java-servlet-sample-app" target="1.6" />
+      <module name="swagger-java-subresource-sample" target="1.6" />
+      <module name="swagger-jaxrs-wink-sample" target="1.6" />
+      <module name="swagger-jersey2-guice-sample-app" target="1.6" />
+      <module name="swagger-jersey2-sample-app" target="1.6" />
+      <module name="swagger-samples-project" target="1.6" />
       <module name="testdeed" target="1.8" />
     </bytecodeTargetLevel>
   </component>

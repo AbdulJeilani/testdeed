@@ -2,5 +2,11 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <profile name="Maven 1" modules="testdeed" />
+    <profile name="Maven 2" modules="swagger-java-sample-app-no-webxml,swagger-java-subresource-sample,swagger-java-grails2-jersey2-sample-app,swagger-java-resteasy-spring-sample,swagger-jersey2-guice-sample-app,swagger-java-cxf-sample,swagger-java-no-annotations-sample,swagger-jersey2-sample-app,swagger-java-jersey-sample-app,swagger-java-sample-app,swagger-java-resteasy-sample,swagger-java-jersey-multi-simple-servlet-sample-app,swagger-java-jersey-multi-simple-webxml-sample-app,swagger-java-jersey-multi-use-basepath-sample-app,swagger-java-resteasy-filter-sample,swagger-java-jersey-multi-sample-app">
+      <option name="deprecationWarnings" value="true" />
+      <parameters>
+        <parameter value="-target:jvm-1.6" />
+      </parameters>
+    </profile>
   </component>
 </project>

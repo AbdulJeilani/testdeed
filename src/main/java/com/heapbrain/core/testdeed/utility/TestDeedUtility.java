@@ -41,6 +41,8 @@ public class TestDeedUtility {
 	public Map<String, Service> allServices = new HashMap<>();
 	boolean isSwagger = false;
 
+	List<String> notSupportedMethod = Arrays.asList("PATCH","DELETE","OPTIONS","HEADER");
+
 	public String loadClassConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo) {
 
 		String requestMappingClassLevel = "";
@@ -80,12 +82,12 @@ public class TestDeedUtility {
 				service.setServiceName(applicationInfo.getTestDeedApi());
 				RequestMapping requestMapping = method.getDeclaredAnnotation(RequestMapping.class);
 				TestDeedApiOperation testDeedApiOperation = method.getDeclaredAnnotation(TestDeedApiOperation.class);
-				if(null != requestMapping) {
+				if(null != requestMapping && !notSupportedMethod.contains(requestMapping.method()[0].name())) {
 					ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
 
 					Map<String, Object> parameters = service.getParameters();
 					parameters.put("RequestBodyType", "");
-					service.setConsume(Arrays.asList("application/json","application/xml","multipart/form-data"));
+					service.setConsume(Arrays.asList("","application/json","application/xml","multipart/form-data"));
 
 					Annotation[][] annotations_params = method.getParameterAnnotations();
 					List<String> pathVariableList = new ArrayList<>();
@@ -93,6 +95,10 @@ public class TestDeedUtility {
 					List<String> headerParam = new ArrayList<>();
 					int parameterCount = 0;
 					Paranamer info = new CachingParanamer(new AnnotationParanamer(new BytecodeReadingParanamer()));
+
+					boolean isRequestMethod = false;
+					List<String> listOfRequestMethod = Arrays.asList("POST","GET", "PUT");
+
 					for(Annotation[] annotation_params : annotations_params) {
 						for(Annotation annotation_param : annotation_params) {
 							if(annotation_param.annotationType().equals(PathVariable.class)) {
@@ -155,6 +161,7 @@ public class TestDeedUtility {
 						if(0 != requestMapping.value().length) {
 							service.setRequestMapping(requestMapping.value()[0]);
 						} if(0 != requestMapping.method().length) {
+							isRequestMethod = true;
 							service.setRequestMethod(requestMapping.method()[0].name());
 						}
 					} 
@@ -169,7 +176,15 @@ public class TestDeedUtility {
 						service.setDescription(method.getName()+" description unavailable");
 					}
 					service.setRequestMappingClassLevel(requestMappingClassLevel);
-					allServices.put(service.getRequestMapping()+"~"+service.getRequestMethod()+"::"+annotatedClass.getName(), service);
+					if(!isRequestMethod) {
+						for(String requestMethod : listOfRequestMethod) {
+							Service cloned = (Service)service.clone();
+							cloned.setRequestMethod(requestMethod);
+							allServices.put(service.getRequestMapping() + "~" + requestMethod + "::" + annotatedClass.getName(), cloned);
+						}
+					} else {
+						allServices.put(service.getRequestMapping() + "~" + service.getRequestMethod() + "::" + annotatedClass.getName(), service);
+					}
 					TestDeedController.serviceMethodObjectMap.put(requestMappingClassLevel+service.getRequestMapping(), TestDeedController.serviceMethodObject);
 					TestDeedController.serviceMethodObject = new ServiceMethodObject();
 					service = new Service();

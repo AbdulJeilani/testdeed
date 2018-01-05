@@ -11,25 +11,16 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-data-rest:1.5.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-logging:1.5.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jul-to-slf4j:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:log4j-over-slf4j:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:4.3.13.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.yaml:snakeyaml:1.17" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.10" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.data:spring-data-rest-webmvc:2.6.9.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.data:spring-data-rest-core:2.6.9.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-tx:4.3.13.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.hateoas:spring-hateoas:0.23.0.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.data:spring-data-commons:1.13.9.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.atteo:evo-inflector:1.2.2" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.25" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-tomcat:1.5.9.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-core:8.5.23" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-annotations-api:8.5.23" level="project" />
@@ -38,6 +29,7 @@
     <orderEntry type="library" name="Maven: org.hibernate:hibernate-validator:5.3.6.Final" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.logging:jboss-logging:3.3.1.Final" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.10" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:4.3.13.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-aop:4.3.13.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:4.3.13.RELEASE" level="project" />
@@ -61,6 +53,7 @@
     <orderEntry type="library" name="Maven: org.mapstruct:mapstruct:1.0.0.Final" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.10" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.8.10" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.8.10" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.woodstox:stax2-api:3.1.4" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.woodstox:woodstox-core:5.0.3" level="project" />
@@ -84,8 +77,6 @@
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-swing_2.12:2.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.58" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.58" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.51.Final" level="project" />
     <orderEntry type="library" name="Maven: io.gatling:gatling-core:2.3.0" level="project" />
     <orderEntry type="library" name="Maven: io.gatling:gatling-commons:2.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.12.3" level="project" />
@@ -114,17 +105,19 @@
     <orderEntry type="library" name="Maven: org.jodd:jodd-log:3.8.6" level="project" />
     <orderEntry type="library" name="Maven: io.gatling:gatling-http:2.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:async-http-client:2.0.35" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.51.Final" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver-dns:2.0.35" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver:2.0.35" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:netty-codec-dns:2.0.35" level="project" />
     <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe.netty:netty-reactive-streams:1.0.8" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-transport-native-epoll:linux-x86_64:4.0.51.Final" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.12:1.0.6" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.51.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.51.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.0.51.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.51.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.51.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-transport:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.12:1.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.woodstox:woodstox-core-asl:4.4.1" level="project" />
     <orderEntry type="library" name="Maven: javax.xml.stream:stax-api:1.0-2" level="project" />
   </component>

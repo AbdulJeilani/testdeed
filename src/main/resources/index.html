@@ -45,7 +45,7 @@ tab {
 }
 
 taba {
-	padding-left: 15em;
+	padding-left: 10em;
 }
 
 textarea {
@@ -219,6 +219,13 @@ input[type=text] {
 			window.location.reload();
 		}
 	}
+
+	function viewreportfunction() {
+         document.loadreportform.action="/showreport";
+         document.loadreportform.method = "POST";
+         document.loadreportform.submit();
+    }
+
 	function executeMethodFunction(clickedButton) {
 		document.getElementById("overlay").style.display = "block";
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["executeService"].value = clickedButton.id;
@@ -297,11 +304,11 @@ input[type=text] {
 			</a>
 		</h1>
 		<div
-			style="width:1400px; valign: center; background-color: #72839c; overflow: auto; margin: 0 auto; height: 50px; border-radius: 5px;"
+			style="width:1400px; valign: center; background-color: #72839c; overflow: auto; margin: 0 auto; height: 50px; border-radius: 2px;"
 			class="cn">
 			<tab> <br />
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size="15px" color="#FFFFF">~application.name~</font></tab>
-			
+			<taba/><taba/><taba/><taba/><taba/><taba/><taba/><input onclick="javascript:viewreportfunction();" type="button" id="viewreport" name="viewreport" value="View Report"/>
 		</div>
 		<br />
 		
@@ -383,14 +390,14 @@ input[type=text] {
 		</div>
 		<br />
 		<div
-			style="background-color: #6e849f; overflow: auto; margin: 0 auto; height: 50px; border-radius: 5px; width:1400px"
+			style="background-color: #6e849f; overflow: auto; margin: 0 auto; height: 50px; border-radius: 2px; width:1400px"
 			class="cn">
 			<p>
 				<tab>~listofservers~</tab>
 				<tab>~userdefinedsimulation~</tab>
 				<tab> <input type="button" value="Execute Simuation"
 					id=" ~ ~ " onclick="executeUserMethodFunction(this)" />
-					 <font size="15px" color="#FFFFF">All testdeed configurations will be disabled</font></tab>
+					 <font size="15px" color="#FFFFF">TestDeed configurations disabled</font></tab>
 				<taba><a href="javascript:hideAllService();" style="text-decoration: none"><font size="15px" color="#FFFFF">List of Service</font></a>
 					 | <a href="javascript:showAllService();" style="text-decoration: none"><font size="15px" color="#FFFFF">List of Operations</font></a>
 				</taba>

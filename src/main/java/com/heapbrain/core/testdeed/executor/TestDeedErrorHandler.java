@@ -25,11 +25,16 @@ public class TestDeedErrorHandler implements ErrorController {
     @RequestMapping(value = PATH)
     String error(HttpServletRequest request, HttpServletResponse response) {
     		String errorResponse = errorAttributes.getErrorAttributes(new ServletRequestAttributes(request),false).toString();
-    		errorResponse = errorResponse.replace(errorResponse.substring(errorResponse.indexOf("{timestamp="), 
-    				errorResponse.indexOf(" status=")), "<font color=\"#3c495a\">");
-    		errorResponse = errorResponse.replace("<!DOCTYPE html>","</font><!DOCTYPE html>");
-    		errorResponse = errorResponse.replace(errorResponse.substring(errorResponse.indexOf("</html>,"), errorResponse.length()),"</html>");
-        return errorResponse;
+    		if(errorResponse.contains("<!DOCTYPE html>")) {
+                errorResponse = errorResponse.replace(errorResponse.substring(errorResponse.indexOf("{timestamp="),
+                        errorResponse.indexOf(" status=")), "<font color=\"#3c495a\">");
+                errorResponse = errorResponse.replace("<!DOCTYPE html>","</font><!DOCTYPE html>");
+                errorResponse = errorResponse.replace(errorResponse.substring(errorResponse.indexOf("</html>,"), errorResponse.length()),"</html>");
+            } else {
+    		    errorResponse = errorResponse.replace(",","<br/>")
+                    .replace("{","").replace("}","");
+            }
+        return "<font color=\"#3c495a\">"+errorResponse+"</font>";
     }
 
     @Override

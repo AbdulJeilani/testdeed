@@ -32,6 +32,9 @@ class TestDeedSimulation extends Simulation {
 				.protocols(httpConf)
 				.assertions(global.responseTime.percentile3.lte(maxResponseTime.toInt))
 	} catch {
-	case e : Exception => throw new Exception("Gatling performance Issue " + e)
+		case e : Exception => {
+			println("From Gatling : " + e.fillInStackTrace())
+			throw new Exception("Gatling performance Issue " + e)
+		}
 	}
 }

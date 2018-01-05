@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import com.heapbrain.core.testdeed.utility.TestDeedReportUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,17 @@ public class TestDeedController {
 		}
 	}
 
+	@RequestMapping(value = "/showreport", method = RequestMethod.POST)
+	public synchronized void showreport(HttpServletResponse response) throws IOException {
+		File file = new File(System.getProperty("user.dir")+"/src/main/webapp/performance/reports");
+		String redirectURL = TestDeedReportUtil.loadIndexHtml(file);
+		if(null == redirectURL || redirectURL.equals("")) {
+            throw new TestDeedValidationException("No reports found");
+        } else {
+            response.sendRedirect(redirectURL);
+        }
+	}
+
 	@RequestMapping(value = "/loadrunner.html", method = RequestMethod.POST)
 	public synchronized void loadPerformanceResult(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		try {
@@ -201,7 +213,12 @@ public class TestDeedController {
 			GatlingPropertiesBuilder props = new GatlingPropertiesBuilder();
 			props.simulationClass(simulationClass);
 			props.resultsDirectory(reportPath);
-			response.sendRedirect(syncRunner(props));
+			String redirectURL = syncRunner(props);
+            if(null == redirectURL || redirectURL.equals("")) {
+				throw new TestDeedValidationException("Gatling error. Check your request and configurations");
+            } else {
+                response.sendRedirect(redirectURL);
+            }
 		} catch (Exception e) {
 			throw new TestDeedValidationException("Gatling configuration error " + e.getMessage(), e);
 		}
