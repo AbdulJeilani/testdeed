@@ -71,7 +71,8 @@ public class TestDeedServiceGenerateEngine {
 				Charset.forName("UTF-8"));
 		int serviceCount=0;
 		for(Map.Entry<String, Service> entry : services.entrySet()) {
-			String key = entry.getKey();//.split("::")[0];;
+			String key = entry.getKey();
+			String serviceNameCount = key.substring(key.lastIndexOf("::")+2,key.length());
 			Service service = entry.getValue();
 			String baseMap = service.getRequestMappingClassLevel();
 			if(!key.equals("~")) {

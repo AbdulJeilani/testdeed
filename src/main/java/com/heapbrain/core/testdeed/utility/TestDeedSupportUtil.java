@@ -51,7 +51,7 @@ public class TestDeedSupportUtil {
 				Charset.forName("UTF-8")).replace("~testdeedexception~", errorDescription)
 				.replace("~printstacktrace~", sb);
 		} catch (Exception e) {
-			throw new TestDeedValidationException("Unavailable error code");
+			throw new TestDeedValidationException(e.getMessage());
 		}
 	}
 	

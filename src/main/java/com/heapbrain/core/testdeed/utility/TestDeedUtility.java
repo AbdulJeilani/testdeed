@@ -77,6 +77,7 @@ public class TestDeedUtility {
 
 	public void loadMethodConfig(Class<?> annotatedClass, ApplicationInfo applicationInfo, String requestMappingClassLevel) throws Exception {
 		Service service = new Service();
+		int serviceCount = 0;
 		if(null == annotatedClass.getAnnotation(SpringBootApplication.class)) {
 			for (Method method : annotatedClass.getDeclaredMethods()) {
 				service.setServiceName(applicationInfo.getTestDeedApi());
@@ -180,10 +181,13 @@ public class TestDeedUtility {
 						for(String requestMethod : listOfRequestMethod) {
 							Service cloned = (Service)service.clone();
 							cloned.setRequestMethod(requestMethod);
-							allServices.put(service.getRequestMapping() + "~" + requestMethod + "::" + annotatedClass.getName(), cloned);
+							allServices.put(
+									service.getRequestMapping() + "~" + requestMethod + "::"
+											+ annotatedClass.getName()+"::"+serviceCount++, cloned);
 						}
 					} else {
-						allServices.put(service.getRequestMapping() + "~" + service.getRequestMethod() + "::" + annotatedClass.getName(), service);
+						allServices.put(service.getRequestMapping() + "~"
+								+ service.getRequestMethod() + "::" + annotatedClass.getName()+"::"+serviceCount++, service);
 					}
 					TestDeedController.serviceMethodObjectMap.put(requestMappingClassLevel+service.getRequestMapping(), TestDeedController.serviceMethodObject);
 					TestDeedController.serviceMethodObject = new ServiceMethodObject();

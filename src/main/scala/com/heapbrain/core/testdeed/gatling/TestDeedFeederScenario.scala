@@ -3,10 +3,12 @@ package com.heapbrain.core.testdeed.gatling
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import com.heapbrain.core.testdeed.executor.TestDeedController
+
 import scala.collection.JavaConverters._
 import scala.collection.Map
 import scala.util.Random
 import com.fasterxml.jackson.databind.JsonNode
+import com.heapbrain.core.testdeed.exception.TestDeedValidationException
 
 @throws(classOf[Exception])
 class TestDeedFeederScenario { 
@@ -70,6 +72,34 @@ class TestDeedFeederScenario {
 					.exec(flushSessionCookies)
 		}
 
+		if((TestDeedController.serviceMethodObject.getMethod())=="GET"){
+			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+				+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+				.get(TestDeedController.serviceMethodObject.getExecuteService())
+				.headers(scalaHeader)
+				.body(StringBody(session => s"""${pickRandomInput()}""")).asJSON
+				.check(status is TestDeedController.gatlingConfiguration.getStatus())
+
+			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
+				httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+					.get(TestDeedController.serviceMethodObject.getExecuteService())
+					.headers(scalaHeader)
+					.body(StringBody(session => s"""${pickRandomInputXML()}""")).asXML
+					.check(status is TestDeedController.gatlingConfiguration.getStatus())
+			}
+
+			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
+				throw new TestDeedValidationException("Gatling performance Issue : GET method not supported for multipartfile")
+			}
+
+			httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
+				.exec(httpTestDeedService)
+				.exec(flushHttpCache)
+				.exec(flushCookieJar)
+				.exec(flushSessionCookies)
+		}
+
 		if((TestDeedController.serviceMethodObject.getMethod())=="PUT"){
 			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
@@ -105,7 +135,7 @@ class TestDeedFeederScenario {
 	} catch {
 		case e : Exception => {
 			println("From Gatling : " + e.fillInStackTrace())
-			throw new Exception("Gatling performance Issue " + e)
+			throw new TestDeedValidationException("Gatling performance Issue " + e)
 		}
 	}
 }

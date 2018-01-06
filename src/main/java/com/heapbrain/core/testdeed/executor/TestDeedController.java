@@ -193,12 +193,9 @@ public class TestDeedController {
 					}
 					serviceMethodObject.setHeaderObj(headerObj);
 
-					if(requestMethod[1].equalsIgnoreCase("POST") || 
-							requestMethod[1].equalsIgnoreCase("PUT")) {
-						if(requestMethod.length > 2 && null != requestMethod[2]) {
-							if(!requestMethod[2].startsWith("MultipartFile")) {
-								serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
-							}
+					if(requestMethod.length > 2 && null != requestMethod[2]) {
+						if(!requestMethod[2].startsWith("MultipartFile")) {
+							serviceMethodObject.setRequestBody(request.getParameter(requestMethod[2]));
 						}
 					}
 				}

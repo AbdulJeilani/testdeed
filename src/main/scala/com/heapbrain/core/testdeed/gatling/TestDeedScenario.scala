@@ -1,9 +1,9 @@
 package com.heapbrain.core.testdeed.gatling
 
+import com.heapbrain.core.testdeed.exception.TestDeedValidationException
+
 import scala.collection.JavaConverters.mapAsScalaMapConverter
-
 import com.heapbrain.core.testdeed.executor.TestDeedController
-
 import io.gatling.core.Predef.StringBody
 import io.gatling.core.Predef.checkBuilder2Check
 import io.gatling.core.Predef.findCheckBuilder2ValidatorCheckBuilder
@@ -104,11 +104,24 @@ class TestDeedScenario {
 		var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 				+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 				.get(TestDeedController.serviceMethodObject.getExecuteService())
+        .body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asJSON
+        .headers(scalaHeader)
 				.check(status is TestDeedController.gatlingConfiguration.getStatus())
 
-				println("Gatling service : "+httpTestDeedService)
-				
-				httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName()) 
+    if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
+      httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
+        +"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
+        .get(TestDeedController.serviceMethodObject.getExecuteService())
+        .headers(scalaHeader)
+        .body(StringBody(TestDeedController.serviceMethodObject.getRequestBody())).asXML
+        .check(status is TestDeedController.gatlingConfiguration.getStatus())
+    }
+
+    if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
+      throw new TestDeedValidationException("Gatling performance Issue : GET method not supported for multipartfile")
+    }
+
+    httpTestDeedLookup = scenario(TestDeedController.serviceMethodObject.getTestDeedName())
 				.exec(httpTestDeedService)
 				.exec(flushHttpCache)
 				.exec(flushCookieJar)
@@ -117,7 +130,7 @@ class TestDeedScenario {
   } catch {
 	  case e : Exception => {
 			println("From Gatling : " + e.fillInStackTrace())
-			throw new Exception("Gatling performance Issue " + e)
+      throw new TestDeedValidationException("Gatling performance Issue " + e)
 		}
 	}
 	
