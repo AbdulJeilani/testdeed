@@ -11,7 +11,7 @@ https://mvnrepository.com/artifact/com.heapbrain/testdeed
 <dependency>
     <groupId>com.heapbrain</groupId>
     <artifactId>testdeed</artifactId>
-    <version>1.3.4</version>
+    <version>1.3.5</version>
 </dependency>
 
 2. Clear your warnings from pom.xml (ex. managed version higher)
