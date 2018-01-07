@@ -135,14 +135,16 @@ public class TestDeedController {
 				simulationClass = request.getParameter("simulationclass");
 			} else {
 				String[] requestMethod = request.getParameter("executeService").split("~");
+				String requestMethodService = requestMethod[0].substring(
+						requestMethod[0].indexOf("/"),requestMethod[0].length());
 
 				Part bodyFeeder = request.getPart("bodyFeeder");
 				Part multipartfile = request.getPart("multipartfile");
 
-				if(null != serviceMethodObjectMap.get(requestMethod[0])) {
-					serviceMethodObject = serviceMethodObjectMap.get(requestMethod[0]);
+				if(null != serviceMethodObjectMap.get(requestMethodService)) {
+					serviceMethodObject = serviceMethodObjectMap.get(requestMethodService);
 					serviceMethodObject.setBaseURL(request.getParameter("baseURL"));
-					serviceMethodObject.setExecuteService(TestDeedControllerUtil.frameURL(requestMethod[0], request));
+					serviceMethodObject.setExecuteService(TestDeedControllerUtil.frameURL(requestMethodService, request));
 					serviceMethodObject.setMethod(requestMethod[1].toUpperCase());
 					serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 					serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
@@ -217,7 +219,7 @@ public class TestDeedController {
                 response.sendRedirect(redirectURL);
             }
 		} catch (Exception e) {
-			throw new TestDeedValidationException("Gatling configuration error " + e.getMessage(), e);
+			throw new TestDeedValidationException("Unable to run gatling with your configuration. Please check", e);
 		}
 	}
 

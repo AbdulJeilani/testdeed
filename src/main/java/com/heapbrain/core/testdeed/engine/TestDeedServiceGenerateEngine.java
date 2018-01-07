@@ -80,6 +80,7 @@ public class TestDeedServiceGenerateEngine {
 				temp = temp.replace("~serviceshowhideopen~", "<a href=\"javascript:showServices"+serviceCount+"();\">");
 				temp = temp.replace("~request.method~", service.getRequestMethod());
 				temp = temp.replace("~request.mapping~", baseMap+service.getRequestMapping());
+				temp = temp.replace("_~serviceCount~_",String.valueOf(serviceCount));
 				temp = temp.replace("~service.method.name~", service.getServiceMethodName());
 				temp = temp.replace("~service.description~", service.getDescription());
 				temp = temp.replace("~application.service.name~", service.getServiceName());
@@ -93,16 +94,16 @@ public class TestDeedServiceGenerateEngine {
 							service.getConsume(), "Consume",true));
 				}
 
-				response += temp + loadParameters(key, baseMap, consumes, service);
+				response += temp + loadParameters(serviceCount, key, baseMap, consumes, service);
 				serviceCount++;
 			}
 		}
 		return response;
 	}
 
-	private String loadParameters(String key, String baseMap, String consumes, Service service) throws Exception {
+	private String loadParameters(int serviceCount, String key, String baseMap, String consumes, Service service) throws Exception {
 		
-		String parametersDesign = TestDeedServiceUtil.loadParameters(key, IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"), 
+		String parametersDesign = TestDeedServiceUtil.loadParameters(serviceCount, key, IOUtils.toString(testDeedUtility.getHtmlFile("parameters.html"),
 				Charset.forName("UTF-8")), baseMap, consumes, service);
 
 		parametersDesign = parametersDesign.replace("~loadparameter~", 

@@ -12,7 +12,7 @@ public class TestDeedServiceUtil {
 	@Autowired
 	TestDeedUtility testDeedUtility;
 	
-	public static String loadParameters(String key, String parametersDesign, String baseMap, String consumes, Service service) throws Exception {
+	public static String loadParameters(int serviceCount, String key, String parametersDesign, String baseMap, String consumes, Service service) throws Exception {
 		Map<String, Object> parameters = service.getParameters();
 		parametersDesign = parametersDesign.replace("~id~", key+"_divshowhide");
 		parametersDesign = parametersDesign.replace("~application.service.name~", service.getServiceName());
@@ -24,9 +24,11 @@ public class TestDeedServiceUtil {
 			Class<?> classTemp = parameters.get("RequestBody").getClass();
 			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {
 				parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+service.getRequestMapping()+"~"+service.getRequestMethod()+"~"+classTemp.getSimpleName());
+				parametersDesign = parametersDesign.replace("_~serviceCount~_", String.valueOf(serviceCount));
 			}
 		} else {
 			parametersDesign = parametersDesign.replace("~buttonmapid~", baseMap+service.getRequestMapping()+"~"+service.getRequestMethod()+"~");
+			parametersDesign = parametersDesign.replace("_~serviceCount~_", String.valueOf(serviceCount));
 		}
 
 		return parametersDesign;

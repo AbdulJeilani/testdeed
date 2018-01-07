@@ -227,6 +227,13 @@ input[type=text] {
     }
 
 	function executeMethodFunction(clickedButton) {
+
+	var value = (clickedButton.id).split("~")[0];
+
+       if(document.getElementById("serviceform"+value).elements["serviceConsume"].value==="") {
+          alert("Consumes - Required. Please select!!!");
+       } else {
+
 		document.getElementById("overlay").style.display = "block";
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["executeService"].value = clickedButton.id;
 	
@@ -265,8 +272,6 @@ input[type=text] {
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["maxResponseTime"].value = 
 			document.getElementById("loadreportform").elements["maxResponseTime"].value;
 		
-		var value = (clickedButton.id).split("~")[0];
-		
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["serviceConsume"].value = 
 			document.getElementById("serviceform"+value).elements["serviceConsume"].value;
 		
@@ -274,6 +279,7 @@ input[type=text] {
 			document.getElementById("loadreportform").elements["baseURL"].value;
 			
 		document.getElementById("loadreportform"+(clickedButton.id)).submit();
+		}
 	}
 	function executeUserMethodFunction(clickedButton) {
         var value = document.getElementById("simulationclass").value;
