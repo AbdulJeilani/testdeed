@@ -80,14 +80,20 @@ public class TestDeedServiceGenerateEngine {
 				temp = temp.replace("~serviceshowhideopen~", "<a href=\"javascript:showServices"+serviceCount+"();\">");
 				temp = temp.replace("~request.method~", service.getRequestMethod());
 				temp = temp.replace("~request.mapping~", baseMap+service.getRequestMapping());
-				temp = temp.replace("_~serviceCount~_",String.valueOf(serviceCount));
+
+				if(!(baseMap+service.getRequestMapping()).startsWith("/")) {
+					temp = temp.replace("_~serviceCount~_", "/"+String.valueOf(serviceCount));
+				} else {
+					temp = temp.replace("_~serviceCount~_", String.valueOf(serviceCount));
+				}
+
 				temp = temp.replace("~service.method.name~", service.getServiceMethodName());
 				temp = temp.replace("~service.description~", service.getDescription());
 				temp = temp.replace("~application.service.name~", service.getServiceName());
 				String consumes="";
 				if(null == service.getConsume()) {
 					temp = temp.replace("~contenttype_consume~", TestDeedSupportUtil.getContentType(baseMap+service.getRequestMapping(),
-							Arrays.asList("","application/xml","application/json","multipart/form-data"),"Consume",false));
+							Arrays.asList("application/json","application/xml","multipart/form-data"),"Consume",false));
 				} else {
 					consumes=service.getConsume().get(0);
 					temp = temp.replace("~contenttype_consume~", TestDeedSupportUtil.getContentType(baseMap+service.getRequestMapping(),

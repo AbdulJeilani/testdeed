@@ -231,10 +231,9 @@ input[type=text] {
 	var value = (clickedButton.id).split("~")[0];
 
        if(document.getElementById("serviceform"+value).elements["serviceConsume"].value==="") {
-          alert("Consumes - Required. Please select!!!");
-       } else {
+          document.getElementById("serviceform"+value).elements["serviceConsume"].value = "application/json";
+       }
 
-		document.getElementById("overlay").style.display = "block";
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["executeService"].value = clickedButton.id;
 	
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["constantUsersPerSec"].value =
@@ -277,9 +276,25 @@ input[type=text] {
 		
 		document.getElementById("loadreportform"+(clickedButton.id)).elements["baseURL"].value = 
 			document.getElementById("loadreportform").elements["baseURL"].value;
-			
-		document.getElementById("loadreportform"+(clickedButton.id)).submit();
-		}
+
+		var count=0;
+        var ele = document.getElementById("loadreportform"+(clickedButton.id)).elements;
+               for(var i=0; i<ele.length; i++) {
+                if(ele[i].hasAttribute("required")) {
+                   if(ele[i].value==="") {
+                       ele[i].style.border="1px solid red";
+                       count++;
+                   }
+               	}
+               } if(count===0) {
+                   	var ele = document.getElementById("loadreportform"+(clickedButton.id)).elements;
+                	for(var i=0; i<ele.length; i++) {
+                       ele[i].style.border="1px solid black";
+               		}
+                document.getElementById("overlay").style.display = "block";
+				document.getElementById("loadreportform"+(clickedButton.id)).submit();
+        }
+
 	}
 	function executeUserMethodFunction(clickedButton) {
         var value = document.getElementById("simulationclass").value;

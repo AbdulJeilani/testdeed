@@ -3,6 +3,8 @@ package com.heapbrain.core.testdeed.utility;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import com.thoughtworks.paranamer.Paranamer;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.web.servlet.mvc.method.annotation.PathVariableMethodArgumentResolver;
 
 @Component
 public class TestDeedUtility {
@@ -88,7 +91,7 @@ public class TestDeedUtility {
 
 					Map<String, Object> parameters = service.getParameters();
 					parameters.put("RequestBodyType", "");
-					service.setConsume(Arrays.asList("","application/json","application/xml","multipart/form-data"));
+					service.setConsume(Arrays.asList("application/json","application/xml","multipart/form-data"));
 
 					Annotation[][] annotations_params = method.getParameterAnnotations();
 					List<String> pathVariableList = new ArrayList<>();
@@ -103,19 +106,50 @@ public class TestDeedUtility {
 					for(Annotation[] annotation_params : annotations_params) {
 						for(Annotation annotation_param : annotation_params) {
 							if(annotation_param.annotationType().equals(PathVariable.class)) {
-								pathVariableList.add(TestDeedSupportUtil.getGenericType(
-										method.getParameters()[parameterCount].toString().split(" ")[0]
-												+" "+info.lookupParameterNames(method)[parameterCount]));
+								PathVariable pathVariable = (PathVariable)annotation_param;
+								String required = "(required)";
+								if(!pathVariable.required()) {
+									required = " ";
+								}
+								if(!"".equals(pathVariable.value())) {
+									pathVariableList.add(getGenericType(method, method.getParameterTypes()[parameterCount].getSimpleName())+"~"
+											+((PathVariable) annotation_param).value()+"~"+required);
+								} else {
+									pathVariableList.add(TestDeedSupportUtil.getGenericType(
+											method.getParameters()[parameterCount].toString().split(" ")[0]
+													+" "+info.lookupParameterNames(method)[parameterCount])+"~"+required);
+								}
 								parameterCount++;
 							} else if(annotation_param.annotationType().equals(RequestParam.class)) {
-								requestParam.add(TestDeedSupportUtil.getGenericType(
-										method.getParameters()[parameterCount].toString().split(" ")[0]
-												+" "+info.lookupParameterNames(method)[parameterCount]));
+								RequestParam requestParamVariable = (RequestParam)annotation_param;
+								String required = "(required)";
+								if(!requestParamVariable.required()) {
+									required = " ";
+								}
+								if(!"".equals(((RequestParam)annotation_param).value())) {
+									requestParam.add(getGenericType(method, method.getParameterTypes()[parameterCount].getSimpleName())+"~"
+											+((RequestParam) annotation_param).value()+"~"+required);
+								} else {
+									requestParam.add(TestDeedSupportUtil.getGenericType(
+											method.getParameters()[parameterCount].toString().split(" ")[0]
+													+ " " + info.lookupParameterNames(method)[parameterCount])+"~"+required);
+								}
 								parameterCount++;
 							} else if(annotation_param.annotationType().equals(RequestHeader.class)) {
-								headerParam.add(TestDeedSupportUtil.getGenericType(
-										method.getParameters()[parameterCount].toString().split(" ")[0]
-												+" "+info.lookupParameterNames(method)[parameterCount]));
+								RequestHeader requestHeader = (RequestHeader)annotation_param;
+								String required = "(required)";
+								if(!requestHeader.required()) {
+									required = " ";
+								}
+								if(!"".equals(((RequestHeader)annotation_param).value())) {
+									headerParam.add(getGenericType(method, method.getParameterTypes()[parameterCount].getSimpleName())+"~"
+											+((RequestHeader) annotation_param).value()+"~"+required);
+								} else {
+									headerParam.add(TestDeedSupportUtil.getGenericType(
+											method.getParameters()[parameterCount].toString().split(" ")[0]
+													+" "+info.lookupParameterNames(method)[parameterCount])+"~"+required);
+								}
+
 								parameterCount++;
 							} else if(annotation_param.annotationType().equals(RequestBody.class)) {
 								String requestBody = method.getParameters()[parameterCount].toString().split(" ")[0];//method.getParameterTypes()[parameterCount].getName();
@@ -203,4 +237,14 @@ public class TestDeedUtility {
 		return classLoader.getResourceAsStream(fileName);
 	}
 
+	private String getGenericType(Method method, String variableName) {
+		if(TestDeedConverter.collectionClass.contains(variableName)) {
+			Type returnType = method.getGenericReturnType();
+			if(null != returnType) {
+				Class<?> typeArgClass = (Class<?>) returnType;
+				variableName += "&lt;"+typeArgClass.getSimpleName()+"&gt;";
+			}
+		}
+		return variableName;
+	}
 }

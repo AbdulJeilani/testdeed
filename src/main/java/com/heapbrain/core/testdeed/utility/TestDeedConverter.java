@@ -118,6 +118,11 @@ public class TestDeedConverter {
 					List<String> parametersList = (List<String>)entry.getValue();
 					for(String paramsName : parametersList) {
 						String[] param = paramsName.split("~");
+						String isRequired = "";
+						if(!" ".equals(param[2])) {
+							isRequired = "required";
+						}
+
 						if(entry.getKey().equals("RequestParam")) {
 							if(!param[0].startsWith("MultipartFile")) {
 								updateURLParam(param[1]);
@@ -127,16 +132,19 @@ public class TestDeedConverter {
 							requestHeader.add(param[1]);
 							requestAttributes += "<tr><td valign=\"top\"><font color=\"#3c495a\">"
 									+param[1]+ "</font></td>"+
-									"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>"
+									"<td><input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"" +
+									" placeholder=\""+param[2]+"\" "+isRequired+" />"
 									+"</td><td><font color=\"#3c495a\">"+entry.getKey()+"</font></td>"
 									+ "<td><font color=\"#3c495a\">"+param[0]+"</font></td></tr>";
 						} else {
 							String textField = "";
 							if(param[0].startsWith("MultipartFile")) {
-								textField = "<input size=\"35\" type=\"file\" id=\"multipartfile\" name=\"multipartfile\"/>";
+								textField = "<input size=\"35\" type=\"file\" id=\"multipartfile\" name=\"multipartfile\""+
+										" placeholder=\""+param[2]+"\" "+isRequired+" />";
 								requestAttributes += "<input type=\"hidden\" id=\"multipartfile_object\" name=\"multipartfile_object\" value=\""+param[1]+"\"/>";
 							} else {
-								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"/>";
+								textField = "<input size=\"35\" type=\"text\" id=\""+param[1]+"\" name=\""+param[1]+"\"" +
+										" placeholder=\""+param[2]+"\" "+isRequired+" />";
 							}
 							
 							if(paramsName.contains("&") && collectionClass.contains(param[0].split("&")[0]) &&
