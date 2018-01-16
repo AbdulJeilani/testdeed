@@ -19,7 +19,14 @@ public class TestDeedServiceUtil {
 
 		parametersDesign = parametersDesign.replace("~service.method.name~", service.getServiceMethodName());
 		parametersDesign = parametersDesign.replace("~service.description~", service.getDescription());
-		
+
+		if(service.getRequestMethod().equalsIgnoreCase("GET")) {
+			parametersDesign = parametersDesign.replace("~feeder4get~",
+					"Feeder : <input type=\"file\" name=\"getFeeder\" id=\"getFeeder\"/>");
+		} else {
+			parametersDesign = parametersDesign.replace("~feeder4get~", "<input type=\"file\" name=\"getFeeder\" id=\"getFeeder\" style=\"display:none;\"/>");
+		}
+
 		if(null != parameters.get("RequestBody")) {
 			Class<?> classTemp = parameters.get("RequestBody").getClass();
 			if(!TestDeedConverter.declaredVariableType.contains(classTemp.getSimpleName())) {

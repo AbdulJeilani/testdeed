@@ -139,6 +139,7 @@ public class TestDeedController {
 						requestMethod[0].indexOf("/"),requestMethod[0].length());
 
 				Part bodyFeeder = request.getPart("bodyFeeder");
+				Part getFeeder = request.getPart("getFeeder");
 				Part multipartfile = request.getPart("multipartfile");
 
 				if(null != serviceMethodObjectMap.get(requestMethodService)) {
@@ -149,13 +150,26 @@ public class TestDeedController {
 					serviceMethodObject.setAcceptHeader(request.getParameter("serviceConsume"));
 					serviceMethodObject.setServiceName(request.getParameter("applicationservicename"));
 
+					if(requestMethod[1].toUpperCase().equals("GET")) {
+						byte[] bytes = IOUtils.toByteArray(getFeeder.getInputStream());
+						String feederInput = new String(bytes);
+						Pattern pattern = Pattern.compile("\\{([^\\}]+)\\}*");
+						Matcher matcher = pattern.matcher(feederInput);
+						List<String> feederInputURL = new ArrayList<>();
+						while(matcher.find()) {
+							feederInputURL.add(request.getParameter("baseURL")+matcher.group(1));
+						}
+						serviceMethodObject.setFeederInputURL(feederInputURL);
+					}
+
 					if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")) {
 						byte[] bytes = IOUtils.toByteArray(bodyFeeder.getInputStream());
 						String feederInput = new String(bytes);
 						if(serviceMethodObject.getAcceptHeader().equals("application/json")) {
 							String isValid = TestDeedSupportUtil.isValidJSON(feederInput);
 							if(!isValid.equals("yes")) {
-								response.sendRedirect("/testdeed.html");
+								throw new TestDeedValidationException("Unable to run gatling with your feeder input." +
+										"Not valid JSON. ");
 							}
 							ObjectMapper mapper = new ObjectMapper();
 							JsonParser jsonParser = new JsonFactory().createParser(feederInput);
@@ -203,7 +217,10 @@ public class TestDeedController {
 				}
 				if(null != bodyFeeder && !bodyFeeder.getSubmittedFileName().equals("")){
 					simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedFeederSimulation";
-				} else {
+				} else if(null != getFeeder && !getFeeder.getSubmittedFileName().equals("")){
+					simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedFeederSimulation";
+				}
+				else {
 					simulationClass = "com.heapbrain.core.testdeed.gatling.TestDeedSimulation";
 				}
 				loadGatlingUserConfiguration(request);

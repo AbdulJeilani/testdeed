@@ -40,7 +40,8 @@ public class TestDeedControllerUtil {
 			Matcher m = MY_PATTERN.matcher(inputURL);
 			while(m.find()) {
 				if(null != request.getParameter(m.group(2))) {
-					inputURL = inputURL.replace("{"+m.group(2)+"}", URLEncoder.encode(request.getParameter(m.group(2)), "UTF-8"));
+					inputURL = inputURL.replace("{"+m.group(2)+"}",
+							URLEncoder.encode(request.getParameter(m.group(2)), "UTF-8"));
 				}
 			}
 			return inputURL;

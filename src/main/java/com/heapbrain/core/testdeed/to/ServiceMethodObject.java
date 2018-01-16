@@ -22,7 +22,16 @@ public class ServiceMethodObject {
 	Map<String, String> headerObj = new HashMap<String, String>();
 	ArrayNode feederRuleObj;
 	List<String> feederRuleXMLObj = new ArrayList<>();
-	
+	List<String> feederInputURL = new ArrayList<>();
+
+	public List<String> getFeederInputURL() {
+		return feederInputURL;
+	}
+
+	public void setFeederInputURL(List<String> feederInputURL) {
+		this.feederInputURL = feederInputURL;
+	}
+
 	public List<String> getFeederRuleXMLObj() {
 		return feederRuleXMLObj;
 	}

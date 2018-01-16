@@ -4,7 +4,7 @@
 <head>
 <title>TestDeed Performance</title>
 <meta charset="UTF-8">
-<link rel="shortcut icon" href="http://www.heapbrain.com/wp-content/uploads/2017/10/logo_resize.png" type="image/x-icon" />
+<link rel="shortcut icon" href="http://www.heapbrain.com/wp-content/uploads/2018/01/TestDeed.png" type="image/x-icon" />
 <style type="text/css">
 html * {
 	font-size: 14px !important;
@@ -279,20 +279,29 @@ input[type=text] {
 
 		var count=0;
         var ele = document.getElementById("loadreportform"+(clickedButton.id)).elements;
-               for(var i=0; i<ele.length; i++) {
+        if(document.getElementById("loadreportform"+(clickedButton.id)).elements["getFeeder"].value === "") {
+        	for(var i=0; i<ele.length; i++) {
                 if(ele[i].hasAttribute("required")) {
                    if(ele[i].value==="") {
                        ele[i].style.border="1px solid red";
                        count++;
                    }
                	}
-               } if(count===0) {
+            } if(count===0) {
                    	var ele = document.getElementById("loadreportform"+(clickedButton.id)).elements;
                 	for(var i=0; i<ele.length; i++) {
                        ele[i].style.border="1px solid black";
                		}
                 document.getElementById("overlay").style.display = "block";
 				document.getElementById("loadreportform"+(clickedButton.id)).submit();
+        	}
+        } else {
+        	var ele = document.getElementById("loadreportform"+(clickedButton.id)).elements;
+            for(var i=0; i<ele.length; i++) {
+            	ele[i].style.border="1px solid black";
+            }
+        	document.getElementById("overlay").style.display = "block";
+			document.getElementById("loadreportform"+(clickedButton.id)).submit();
         }
 
 	}

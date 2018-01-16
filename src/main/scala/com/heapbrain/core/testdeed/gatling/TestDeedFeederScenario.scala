@@ -22,21 +22,30 @@ class TestDeedFeederScenario {
 				println("ExecuteService : " + Environment.baseURL+TestDeedController.serviceMethodObject.getExecuteService())
 				var listOfInputs = List[JsonNode]()
 				var listOfInputsXml = List[String]()
+				var listOfInputURL = List[String]()
 
 				if( null != TestDeedController.serviceMethodObject.getFeederRuleObj()) {
 					listOfInputs = (TestDeedController.serviceMethodObject.getFeederRuleObj()).asScala.toList
-				} else {
+				}
+				if(null != TestDeedController.serviceMethodObject.getFeederRuleXMLObj()) {
 					listOfInputsXml = (TestDeedController.serviceMethodObject.getFeederRuleXMLObj()).asScala.toList
+				}
+				if(null != TestDeedController.serviceMethodObject.getFeederInputURL()) {
+					listOfInputURL = (TestDeedController.serviceMethodObject.getFeederInputURL()).asScala.toList
 				}
 
 		println("Feeder Config (JSON): "+listOfInputs)
-		println("Feeder Config (XML): "+listOfInputsXml)    
+		println("Feeder Config (XML): "+listOfInputsXml)
+		println("Feeder Config (URL): "+listOfInputsXml)
 
 		def pickRandomInput() = {
 				listOfInputs(Random.nextInt(listOfInputs.size))
 		}   
 		def pickRandomInputXML() = {
 				listOfInputsXml(Random.nextInt(listOfInputsXml.size))
+		}
+		def pickRandomInputURL() = {
+			  listOfInputURL(Random.nextInt(listOfInputURL.size))
 		}
 
 		if((TestDeedController.serviceMethodObject.getMethod())=="POST"){
@@ -75,17 +84,15 @@ class TestDeedFeederScenario {
 		if((TestDeedController.serviceMethodObject.getMethod())=="GET"){
 			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 				+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-				.get(TestDeedController.serviceMethodObject.getExecuteService())
+				.get(StringBody(session => s"""${pickRandomInputURL()}"""))
 				.headers(scalaHeader)
-				.body(StringBody(session => s"""${pickRandomInput()}""")).asJSON
 				.check(status is TestDeedController.gatlingConfiguration.getStatus())
 
 			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
 				httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-					.get(TestDeedController.serviceMethodObject.getExecuteService())
+					.get(StringBody(session => s"""${pickRandomInputURL()}"""))
 					.headers(scalaHeader)
-					.body(StringBody(session => s"""${pickRandomInputXML()}""")).asXML
 					.check(status is TestDeedController.gatlingConfiguration.getStatus())
 			}
 
