@@ -1,29 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/../swagger-samples" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/inflector-jetty-webxml" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-dropwizard" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-grails2" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jaxrs" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jaxrs-cxf" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jaxrs-no-annotations" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jaxrs-no-webxml" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jaxrs-subresource" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jaxrs-wink" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey-governator" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey-jaxrs" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey-jaxrs-multi" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey-jaxrs-multi-simple-servlet" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey-jaxrs-multi-simple-webxml" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey-jaxrs-multi-use-basepath" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey2" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-jersey2-guice" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-mule" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-resteasy" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-resteasy-filter" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-resteasy-spring" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../swagger-samples/java/java-servlet" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sample" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
   </component>
 </project>

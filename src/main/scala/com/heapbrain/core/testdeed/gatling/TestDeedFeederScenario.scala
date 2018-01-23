@@ -36,7 +36,7 @@ class TestDeedFeederScenario {
 
 		println("Feeder Config (JSON): "+listOfInputs)
 		println("Feeder Config (XML): "+listOfInputsXml)
-		println("Feeder Config (URL): "+listOfInputsXml)
+		println("Feeder Config (URL): "+listOfInputURL)
 
 		def pickRandomInput() = {
 				listOfInputs(Random.nextInt(listOfInputs.size))
@@ -85,16 +85,7 @@ class TestDeedFeederScenario {
 			var httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
 				+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
 				.get(StringBody(session => s"""${pickRandomInputURL()}"""))
-				.headers(scalaHeader)
 				.check(status is TestDeedController.gatlingConfiguration.getStatus())
-
-			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="application/xml") {
-				httpTestDeedService = http(TestDeedController.serviceMethodObject.getServiceName()
-					+"["+TestDeedController.serviceMethodObject.getTestDeedName()+"]")
-					.get(StringBody(session => s"""${pickRandomInputURL()}"""))
-					.headers(scalaHeader)
-					.check(status is TestDeedController.gatlingConfiguration.getStatus())
-			}
 
 			if(TestDeedController.serviceMethodObject.getAcceptHeader()=="multipart/form-data") {
 				throw new TestDeedValidationException("Gatling performance Issue : GET method not supported for multipartfile")
