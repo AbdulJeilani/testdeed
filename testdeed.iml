@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration />
+    </facet>
+    <facet type="web" name="Web">
+      <configuration>
+        <webroots />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -112,12 +122,13 @@
     <orderEntry type="library" name="Maven: com.typesafe.netty:netty-reactive-streams:1.0.8" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-transport-native-epoll:linux-x86_64:4.0.51.Final" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.12:1.0.6" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.51.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.0.51.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.1.52.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver:4.1.52.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.1.52.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.1.52.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-common:4.1.52.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.1.52.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.1.52.Final" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.woodstox:woodstox-core-asl:4.4.1" level="project" />
     <orderEntry type="library" name="Maven: javax.xml.stream:stax-api:1.0-2" level="project" />
   </component>
